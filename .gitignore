@@ -1,0 +1,16 @@
+# Full-resolution originals. ~39 MB, nothing on the site references them.
+# See README: "_source/ must not be deployed."
+_source/
+
+# Claude Code local machine state (launch.json is shared and stays tracked)
+.claude/settings.local.json
+
+# Tooling
+node_modules/
+__pycache__/
+*.pyc
+
+# OS cruft
+Thumbs.db
+desktop.ini
+.DS_Store
