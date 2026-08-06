@@ -319,7 +319,12 @@ em, .em {
   transform: translateY(-50%);
   display: none;
 }
-@media (min-width: 1180px) { .rail { display: block; } }
+/* 1500px, not 1180. The rail is fixed at the left gutter while .shell is a
+   centred 1220px column, so below this the content still reaches across the
+   rail and the headline runs underneath it. The number is where the margin
+   beside the shell, (100vw - 1220px) / 2 + gutter, finally clears the rail's
+   own width. */
+@media (min-width: 1500px) { .rail { display: block; } }
 
 .rail ol { display: flex; flex-direction: column; gap: 0.15rem; }
 
