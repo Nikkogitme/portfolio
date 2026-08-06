@@ -950,6 +950,160 @@
   })();
 
   /* ---------------------------------------------------------------------
+     Toolkit pills
+
+     Each column is its own small physics world, so a released pill stays
+     inside its own category rather than tumbling into a single pile. Pills
+     hold their laid-out positions until the panel is clicked, then drop.
+
+     Matter.js is optional in exactly the way gsap and Lenis are: if it is not
+     there, or motion is reduced, the pills stay in their normal flex layout
+     and the Toolkit reads as a plain list of tools.
+     --------------------------------------------------------------------- */
+  (function toolkitPills() {
+    var grid = document.getElementById("toolGrid");
+    if (!grid || reduce) return;
+    if (typeof window.Matter === "undefined") return;
+
+    var M = window.Matter;
+    var columns = [];
+
+    $$(".tool-pills", grid).forEach(function (list) {
+      var pills = $$(".tool-pill", list);
+      if (!pills.length) return;
+
+      var w = list.clientWidth;
+      var h = list.clientHeight;
+      if (!w || !h) return;
+
+      /* Capture where the browser already laid each pill out, so the drop
+         starts from exactly what the visitor is looking at. */
+      var listBox = list.getBoundingClientRect();
+      var seed = pills.map(function (p) {
+        var r = p.getBoundingClientRect();
+        return {
+          el: p,
+          x: r.left - listBox.left,
+          y: r.top - listBox.top,
+          w: r.width,
+          h: r.height
+        };
+      });
+
+      var engine = M.Engine.create();
+      engine.gravity.y = 1;
+
+      var WALL = 200;   // thick walls, so nothing tunnels out at speed
+      var walls = [
+        M.Bodies.rectangle(w / 2, h + WALL / 2, w + WALL * 2, WALL, { isStatic: true }),
+        M.Bodies.rectangle(-WALL / 2, h / 2, WALL, h * 3, { isStatic: true }),
+        M.Bodies.rectangle(w + WALL / 2, h / 2, WALL, h * 3, { isStatic: true })
+      ];
+      M.Composite.add(engine.world, walls);
+
+      var bodies = seed.map(function (s) {
+        var body = M.Bodies.rectangle(
+          s.x + s.w / 2, s.y + s.h / 2, s.w, s.h,
+          { chamfer: { radius: Math.min(s.h / 2, 18) },
+            restitution: 0.35, friction: 0.4, frictionAir: 0.02 });
+        M.Body.setStatic(body, true);          // held until release
+        body.plugin = { el: s.el, w: s.w, h: s.h };
+        return body;
+      });
+      M.Composite.add(engine.world, bodies);
+
+      /* Pills become absolutely positioned only now, at the coordinates they
+         already occupy, so switching over does not visibly move anything. */
+      list.classList.add("is-live");
+      list.style.height = h + "px";
+      seed.forEach(function (s) {
+        s.el.style.width = s.w + "px";
+        s.el.style.transform =
+          "translate(" + s.x + "px," + s.y + "px)";
+      });
+
+      columns.push({ list: list, engine: engine, bodies: bodies, w: w, h: h });
+    });
+
+    if (!columns.length) return;
+    root.classList.add("tools-ready");
+
+    var running = false;
+    var released = false;
+    var raf = null;
+    var inView = true;
+
+    function paint(col) {
+      col.bodies.forEach(function (b) {
+        var p = b.plugin;
+        p.el.style.transform =
+          "translate(" + (b.position.x - p.w / 2).toFixed(2) + "px," +
+          (b.position.y - p.h / 2).toFixed(2) + "px) " +
+          "rotate(" + b.angle.toFixed(3) + "rad)";
+      });
+    }
+
+    function frame() {
+      raf = requestAnimationFrame(frame);
+      columns.forEach(function (col) {
+        M.Engine.update(col.engine, 1000 / 60);
+        paint(col);
+      });
+    }
+
+    function sync() {
+      var should = running && inView && !document.hidden;
+      if (should && raf === null) raf = requestAnimationFrame(frame);
+      else if (!should && raf !== null) { cancelAnimationFrame(raf); raf = null; }
+    }
+
+    function release() {
+      if (released) return;
+      released = true;
+      running = true;
+      root.classList.add("tools-dropped");
+      columns.forEach(function (col) {
+        col.bodies.forEach(function (b) {
+          M.Body.setStatic(b, false);
+          /* a touch of spin so they do not fall dead straight */
+          M.Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.12);
+        });
+      });
+      sync();
+    }
+
+    grid.addEventListener("click", release);
+
+    /* Dragging, desktop pointers only: on touch this would fight the scroll. */
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      columns.forEach(function (col) {
+        var mouse = M.Mouse.create(col.list);
+        var mc = M.MouseConstraint.create(col.engine, {
+          mouse: mouse,
+          constraint: { stiffness: 0.2, render: { visible: false } }
+        });
+        M.Composite.add(col.engine.world, mc);
+        /* let the page keep scrolling over the pills */
+        mouse.element.removeEventListener("wheel", mouse.mousewheel);
+        M.Events.on(mc, "startdrag", function (e) {
+          if (e.body && e.body.plugin) e.body.plugin.el.classList.add("is-held");
+        });
+        M.Events.on(mc, "enddrag", function (e) {
+          if (e.body && e.body.plugin) e.body.plugin.el.classList.remove("is-held");
+        });
+      });
+    }
+
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (en) {
+        inView = en[0].isIntersecting;
+        sync();
+      }, { threshold: 0 }).observe(grid);
+    }
+    document.addEventListener("visibilitychange", sync);
+  })();
+
+  /* ---------------------------------------------------------------------
      Magnetic buttons: desktop pointer only, decorative
      --------------------------------------------------------------------- */
   if (animate && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {

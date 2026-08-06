@@ -1051,19 +1051,85 @@ em, .em {
   border-bottom: 1px solid var(--rule-dark);
 }
 
-.tool-list dt {
-  font-size: 0.98rem;
-  font-weight: 550;
-  letter-spacing: -0.008em;
-  color: var(--on-dark);
+/* Pills. Laid out normally by default: if the physics never runs, this is
+   simply a tidy list of tools and nothing is lost. The column reserves its
+   height here so releasing the pills cannot make the section collapse. */
+.tool-pills {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.5rem;
+  min-height: 11rem;
 }
-.tool-list dd {
+/* Pill treatment: monospace label, flat fill, a lighter ring of the same hue,
+   fully rounded. Terracotta is deliberately outside the Blueprint palette,
+   which is why it is declared here as its own tokens rather than reaching for
+   --accent: it is a self-contained set, easy to swap in one place. */
+.tool-pills {
+  --pill-fill: #a0544a;
+  --pill-edge: #c96f5c;
+  --pill-ink: #f8efec;
+  --pill-fill-hi: #b35f53;
+}
+.tool-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.62rem 1.15rem;
+  border: 2px solid var(--pill-edge);
+  border-radius: 999px;
+  background: var(--pill-fill);
+  color: var(--pill-ink);
+  font-family: var(--mono);
   font-size: 0.8rem;
-  line-height: 1.5;
-  color: var(--on-dark-60);
-  margin-bottom: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  user-select: none;
+  transition: background 0.25s var(--ease-soft),
+              border-color 0.25s var(--ease-soft);
 }
-.tool-list dd:last-child { margin-bottom: 0; }
+/* only meaningful before release, while they are still laid out in a row */
+.tool-pills:not(.is-live) .tool-pill:hover {
+  background: var(--pill-fill-hi);
+  border-color: var(--pill-ink);
+}
+
+/* Once main.js takes over, pills are positioned absolutely and driven by
+   transform. will-change only while they are actually moving. */
+/* The solver keeps each pill's centre inside the column, but a wide pill
+   tilted on its side still throws its corners past the edge. Clip, so a
+   dropped pill can never overlap the neighbouring category. */
+.tool-pills.is-live {
+  display: block;
+  overflow: hidden;
+}
+.tool-pills.is-live .tool-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+.tool-pills.is-live .tool-pill { cursor: grab; }
+.tool-pills.is-live .tool-pill.is-held {
+  background: var(--pill-fill-hi);
+  border-color: var(--pill-ink);
+  cursor: grabbing;
+}
+
+/* The prompt only appears when the physics is actually available. */
+.tool-cue {
+  display: none;
+  margin-top: 1.4rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-dark-60);
+}
+html.tools-ready .tool-cue { display: block; }
+html.tools-ready #toolGrid { cursor: pointer; }
+html.tools-ready.tools-dropped #toolGrid { cursor: default; }
 
 /* ---------- 13. Education and certification ---------- */
 .edu-grid {
