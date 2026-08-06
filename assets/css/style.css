@@ -506,38 +506,6 @@ em, .em {
   margin-left: 0.3rem;
 }
 
-.scroll-cue {
-  position: absolute;
-  bottom: 1.75rem;
-  left: 50%;
-  translate: -50% 0;
-  z-index: 1;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-@media (min-width: 900px) { .scroll-cue { display: flex; } }
-.scroll-cue .track {
-  width: 1px; height: 42px;
-  background: var(--rule-strong);
-  overflow: hidden;
-  position: relative;
-}
-.scroll-cue .track::after {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 40%;
-  background: var(--accent);
-  animation: cue 2.2s var(--ease-soft) infinite;
-}
-@keyframes cue {
-  0%   { transform: translateY(-100%); }
-  60%  { transform: translateY(250%); }
-  100% { transform: translateY(250%); }
-}
-
 /* ---------- 8. About ----------
    No portrait column. The lead statement is centred across the full measure and
    the body runs in two columns beneath it, so the section fills its width
@@ -803,6 +771,57 @@ em, .em {
   .proj-card[data-w="3"] { grid-column: span 3; }
   .proj-card[data-w="4"] { grid-column: span 4; }
   .proj-card[data-w="6"] { grid-column: span 6; }
+}
+
+/* Practice filter. The wrapper carries `hidden` in the markup and main.js
+   clears it, so a page without script shows every card and never offers a
+   control that cannot work. The global [hidden] rule handles the hiding. */
+.proj-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.9rem;
+  /* Same step as .cases uses above itself, so the Design Technology group and
+     the project grid are separated by one consistent interval rather than
+     running together. */
+  margin-top: clamp(3rem, 6vw, 5rem);
+  margin-bottom: clamp(1.2rem, 2.5vw, 1.9rem);
+}
+/* Named filter-chip, not chip: `.chip` is already taken by the inline images
+   in the hero headline (section 7) and these rules would repaint them. */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.filter-chip {
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper-raised);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-70);
+  transition: color 0.3s var(--ease), border-color 0.3s var(--ease),
+              background 0.3s var(--ease);
+}
+.filter-chip:hover {
+  border-color: var(--accent-line);
+  color: var(--ink);
+}
+.filter-chip[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-dark);
+}
+.proj-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-50);
 }
 
 .proj-card {
@@ -1300,7 +1319,197 @@ html.no-gsap [data-reveal] { opacity: 1 !important; transform: none !important; 
 html.no-gsap .tl-line { transform: scaleY(1); }
 html.no-gsap .hero-title .line { overflow: visible; }
 
-/* ---------- 17. Reduced motion ---------- */
+/* ---------- 16b. Case CTA and viewer ----------
+   The "see a sample" trigger on a case card, and the dialog it opens.
+   main.js hides any trigger with no data-viewer-src, so an unwired one never
+   reaches the page. */
+.case-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.1rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--accent-line);
+  border-radius: 2px;
+  background: var(--accent-wash);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  transition: background 0.3s var(--ease), border-color 0.3s var(--ease),
+              color 0.3s var(--ease);
+}
+.case-cta svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+.case-cta:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.viewer {
+  width: min(1180px, 94vw);
+  max-width: none;
+  max-height: 92vh;
+  padding: 0;
+  border: 0;
+  background: var(--ink-bg);
+  color: var(--on-dark);
+}
+.viewer::backdrop { background: rgba(10, 11, 13, 0.82); }
+
+/* A definite height here, not max-height. The stage below grows into the space
+   left over, and flex needs something real to divide up: with only a
+   max-height the stage collapses to nothing. */
+.viewer-shell {
+  display: flex;
+  flex-direction: column;
+  height: min(88vh, 900px);
+}
+.viewer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem 0.85rem;
+  border-bottom: 1px solid var(--rule-dark);
+}
+.viewer-head h2 {
+  font-size: 1.02rem;
+  font-weight: var(--w-head);
+  letter-spacing: var(--track-head);
+}
+
+/* min-height: 0 lets this actually shrink inside the column; without it the
+   iframe's default intrinsic size sets a floor and pushes the note off. */
+.viewer-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #0e1013;
+}
+.viewer-stage iframe,
+.viewer-stage video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+/* letterbox rather than crop: this is a screen recording, and cropping would
+   cut the interface being demonstrated */
+.viewer-stage video {
+  object-fit: contain;
+  background: #0e1013;
+}
+.viewer-stage [hidden] { display: none; }
+
+/* Document pages: a plain scrolling stack. No PDF plugin involved, so this
+   renders the same whatever the visitor's browser is set to do with PDFs. */
+.viewer-pages {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.1rem clamp(0.6rem, 3vw, 2.5rem);
+  background: #22252b;
+  -webkit-overflow-scrolling: touch;
+}
+.viewer-pages img {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  margin-inline: auto;
+  background: #fff;
+  box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.75);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.viewer-pages img + img { margin-top: 1.1rem; }
+
+.viewer-note {
+  padding: 0.7rem 1.15rem 0.9rem;
+  border-top: 1px solid var(--rule-dark);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--on-dark-60);
+}
+
+/* ---------- 17. Preloader ----------
+   A count from 0 to 100 that travels left to right across the foot of the
+   screen. It settles on 100, holds for a beat, then the whole panel fades out
+   to hand over to the page.
+
+   The panel is visible from the first paint, which makes it the one thing on
+   this site that could hide content if it went wrong. Three separate things
+   stop that happening:
+     1. the failsafe animation below clears it after 3s with no script at all;
+     2. main.js cancels that failsafe only once it is running, then removes
+        the element outright;
+     3. reduced motion and print drop it entirely.
+   Scroll locking is deliberately left to main.js, so a page without script is
+   never left unscrollable. */
+.preloader {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 100svh;
+  z-index: 400;
+  background: var(--paper);
+  overflow: hidden;
+  /* 2s delay: the FAILSAFE_MS constant in main.js must match. Long enough
+     that a normally-loading page has run the script and cancelled it, short
+     enough that a visitor without JavaScript is not left staring at nothing. */
+  animation: preload-failsafe 0.4s var(--ease-soft) 2s forwards;
+}
+/* main.js is alive and will drive this itself */
+html.preload-js .preloader { animation: none; }
+
+@keyframes preload-failsafe {
+  to { opacity: 0; visibility: hidden; }
+}
+
+html.preloading, html.preloading body { overflow: hidden; }
+
+/* The handover: the panel, count and all, fades away to leave the page. It is
+   already laid out underneath, so nothing moves or reflows during the fade.
+   pointer-events goes first so the page is clickable the moment it appears
+   rather than only once the node is removed.
+   0.7s must match FADE_MS in main.js. */
+.preloader.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s var(--ease-soft);
+}
+
+.preload-track {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(0.5rem, 2vh, 1.3rem);
+}
+
+/* --p runs 0..1. Pairing left with a matching negative translate walks the
+   number from flush-left at 0 to flush-right at 100 without ever overhanging
+   the gutter. main.js sets it through the CSSOM, so no inline style attribute
+   is needed and the CSP stays as documented. */
+.preload-count {
+  position: absolute;
+  bottom: 0;
+  left: calc(var(--p, 0) * 100%);
+  translate: calc(var(--p, 0) * -100%) 0;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(3.25rem, 12.5vh, 8.5rem);
+  line-height: 0.8;
+  letter-spacing: var(--track-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* ---------- 18. Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *,
@@ -1313,15 +1522,15 @@ html.no-gsap .hero-title .line { overflow: visible; }
   [data-reveal] { opacity: 1 !important; transform: none !important; }
   .hero-title .line { overflow: visible; }
   #heroCanvas { display: none; }
-  .scroll-cue { display: none; }
+  .preloader { display: none; }
   .proj-card:hover { transform: none; }
   .proj-card:hover .proj-media img { transform: none; }
 }
 
-/* ---------- 18. Print ---------- */
+/* ---------- 19. Print ---------- */
 @media print {
-  .topbar, .rail, .scroll-cue, #heroCanvas, .lightbox, .footer .to-top,
-  .proj-trigger, .proj-view { display: none !important; }
+  .topbar, .rail, #heroCanvas, .lightbox, .footer .to-top,
+  .proj-trigger, .proj-view, .preloader { display: none !important; }
   body { background: #fff; }
   .section { padding-block: 1.5rem; break-inside: avoid; }
   .job-detail { height: auto !important; }

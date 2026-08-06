@@ -17,6 +17,8 @@ Content-Security-Policy:
   style-src 'self' https://fonts.googleapis.com;
   font-src https://fonts.gstatic.com;
   img-src 'self' data:;
+  media-src 'self';
+  frame-src 'self';
   connect-src 'self';
   base-uri 'none';
   form-action 'none';
@@ -43,6 +45,19 @@ Two points worth understanding, both confirmed in that run:
   inline style. The markup contains no `style` attributes, so nothing else
   needs it either. If you add an inline `style="..."` attribute later, this
   policy will block it. `scripts/check_site.py` warns when you do.
+- **`media-src 'self'` is required by the sample viewer**, for the DT Insite
+  Hub recording. The Phase 30 BIM Brief needs nothing extra: it renders as
+  page images under the existing `img-src 'self'`, not through an `<iframe>`.
+  An embedded PDF was tried first and abandoned, because Chrome, Edge and
+  Firefox all let a visitor set PDFs to download rather than display, and
+  those visitors get a download prompt in place of the document.
+  `frame-src 'self'` is kept only for the viewer's unused iframe path.
+
+  Embedding the recording from OneDrive was tried and does not work:
+  `onedrive.live.com` responds with `frame-ancestors 'self'`, so the browser
+  refuses it inside any other site's frame regardless of what `frame-src`
+  allows. Only a Share → Embed URL is exempt, and that option is not reliably
+  offered for video. Self-hosting sidesteps it.
 - **`script-src` does not need `'unsafe-inline'`.** The only inline `<script>`
   is `type="application/ld+json"`, which is a data block rather than executable
   script. Browsers do not execute it, so `script-src` does not apply to it.

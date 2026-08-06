@@ -276,9 +276,9 @@ Work through this before the site goes public.
       relative paths. Most social scrapers will not resolve those
 - [ ] **Social preview verified** in the LinkedIn Post Inspector and X Card
       Validator
-- [ ] **LinkedIn URL verified.** `linkedin.com/in/nikkosudirman` is an
-      assumption, not a confirmed profile. Fix the `href` and the visible text,
-      or remove the link. There is a TODO comment beside it
+- [x] **LinkedIn URL verified.** Confirmed as
+      `linkedin.com/in/nikko-sudirman`. The `href` and the visible text both
+      use it
 - [ ] **Resume PDF** filename, contents and date are current
 - [ ] **`_source/` excluded from the deploy** (39 MB of unused originals)
 

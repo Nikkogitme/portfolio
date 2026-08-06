@@ -45,6 +45,91 @@
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
   /* ---------------------------------------------------------------------
+     Preloader
+
+     Counts 0 to 100 across the foot of the screen, then retracts upward to
+     reveal the page. Runs first, because the stylesheet is holding a 3s
+     failsafe that clears the panel on its own and this is what calls it off.
+
+     The count is tied to the real `load` event rather than being pure theatre:
+     it crawls asymptotically toward 90 while assets are still arriving and
+     only completes once the browser says the page is loaded. MIN_MS stops a
+     warm cache reducing it to a flash; MAX_MS stops one slow CDN file holding
+     the whole page shut.
+     --------------------------------------------------------------------- */
+  (function preloader() {
+    var el = document.getElementById("preloader");
+    if (!el) return;
+    var countEl = document.getElementById("preloadCount");
+
+    /* from here the script owns the panel, so stand the CSS failsafe down */
+    root.classList.add("preload-js");
+
+    function remove() {
+      root.classList.remove("preloading");
+      if (el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    /* reduced motion gets the page, not the performance */
+    if (reduce || !countEl) { remove(); return; }
+
+    var MIN_MS = 1100;      // long enough to register, short enough not to grate
+    var MAX_MS = 4000;      // hard ceiling: never hold the page shut past this
+    var HOLD_MS = 1000;     // the beat on 100 before the panel fades away
+    var FADE_MS = 700;      // must match the transition in the stylesheet
+    var FAILSAFE_MS = 2000; // must match the animation delay in the stylesheet
+
+    /* If this script only got going after the stylesheet's failsafe was due,
+       the connection is slow enough that the page is the thing worth showing.
+       Bail out rather than let `animation: none` snap a half-faded panel back
+       to full opacity and start a countdown the visitor has already waited
+       through. performance.now() here is time since navigation started. */
+    if (performance.now() >= FAILSAFE_MS) { remove(); return; }
+
+    root.classList.add("preloading");
+
+    var start = performance.now();
+    var loaded = document.readyState === "complete";
+    var shown = 0;
+    var raf = null;
+
+    if (!loaded) {
+      window.addEventListener("load", function () { loaded = true; });
+    }
+
+    function target(elapsed) {
+      if (elapsed >= MAX_MS) return 100;
+      if (loaded && elapsed >= MIN_MS) return 100;
+      /* never pretends to be finished: 90 is the asymptote until `load` */
+      return Math.min(90, 90 * (1 - Math.exp(-elapsed / 900)));
+    }
+
+    function frame(now) {
+      var want = target(now - start);
+      shown += (want - shown) * 0.09;
+      if (want === 100 && want - shown < 0.4) shown = 100;
+
+      var v = Math.min(100, Math.round(shown));
+      countEl.textContent = String(v);
+      /* CSSOM, not a style attribute, so the documented CSP still holds */
+      el.style.setProperty("--p", (v / 100).toFixed(4));
+
+      if (v >= 100) {
+        raf = null;
+        /* settle on 100, hold, then fade the panel out */
+        setTimeout(function () {
+          el.classList.add("is-leaving");
+          /* +80ms so the node only goes once the fade has actually finished */
+          setTimeout(remove, FADE_MS + 80);
+        }, HOLD_MS);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  })();
+
+  /* ---------------------------------------------------------------------
      Smooth scroll (Lenis). Entirely optional.
      --------------------------------------------------------------------- */
   var lenis = null;
@@ -487,6 +572,194 @@
         }
       });
     });
+  })();
+
+  /* ---------------------------------------------------------------------
+     Sample viewer
+
+     One dialog shared by every "see a sample" trigger. The iframe src is set
+     on open and cleared on close, so nothing loads until asked and a closed
+     dialog is not left streaming in the background.
+
+     A trigger with no data-viewer-src is removed rather than shown dead, which
+     is how the video trigger stays out of the way until a URL exists.
+     --------------------------------------------------------------------- */
+  (function sampleViewer() {
+    var dlg = document.getElementById("viewer");
+    var triggers = $$(".case-cta");
+    if (!triggers.length) return;
+
+    /* No dialog support, or no dialog at all: leave the triggers off the page
+       rather than offer a button that does nothing. */
+    if (!dlg || typeof dlg.showModal !== "function") {
+      triggers.forEach(function (t) { t.hidden = true; });
+      return;
+    }
+
+    var frame = document.getElementById("viewerFrame");
+    var video = document.getElementById("viewerVideo");
+    var pages = document.getElementById("viewerPages");
+    var titleEl = document.getElementById("viewerTitle");
+    var metaEl = document.getElementById("viewerMeta");
+    var noteEl = document.getElementById("viewerNote");
+    var closeBtn = document.getElementById("viewerClose");
+    if (!frame || !titleEl || !closeBtn) return;
+
+    var opener = null;
+
+    var NOTE = {
+      doc: "Sample document, shown read-only in this window.",
+      video: "Sample recording, played in this window."
+    };
+
+    /* Build the page stack for a document. Images are created with
+       createElement and setAttribute, never from a markup string, so a
+       data-viewer-base value can never become markup. */
+    function buildPages(base, count, title) {
+      pages.textContent = "";
+      for (var i = 1; i <= count; i++) {
+        var img = document.createElement("img");
+        img.setAttribute("src", base + i + ".webp");
+        img.setAttribute("alt", title + ", page " + i + " of " + count);
+        /* first page eager so the viewer is never briefly empty */
+        img.setAttribute("loading", i === 1 ? "eager" : "lazy");
+        img.setAttribute("decoding", "async");
+        img.setAttribute("draggable", "false");
+        pages.appendChild(img);
+      }
+      pages.scrollTop = 0;
+    }
+
+    triggers.forEach(function (btn) {
+      var src = btn.getAttribute("data-viewer-src");
+      var pageCount = parseInt(btn.getAttribute("data-viewer-pages"), 10);
+      var pageBase = btn.getAttribute("data-viewer-base");
+      var isDoc = pageCount > 0 && pageBase;
+      if (!src && !isDoc) { btn.hidden = true; return; }   // not wired up yet
+
+      btn.addEventListener("click", function () {
+        var title = btn.getAttribute("data-viewer-title") || "";
+        titleEl.textContent = title;
+        if (metaEl) metaEl.textContent = btn.getAttribute("data-viewer-meta") || "";
+        if (noteEl) noteEl.textContent = NOTE[btn.getAttribute("data-viewer-kind")] || "";
+        /* A local video belongs in the video element, not an iframe: an
+           iframed mp4 gets the browser's bare player with a download button
+           and no poster. A document renders as page images, because an
+           embedded PDF is at the mercy of the visitor's browser settings.
+           Anything else goes to the frame. */
+        var useVideo = video && btn.getAttribute("data-viewer-kind") === "video" &&
+                       !/^https?:\/\//i.test(src);
+
+        if (isDoc && pages) {
+          frame.hidden = true;
+          frame.removeAttribute("src");
+          if (video) { video.hidden = true; video.removeAttribute("src"); }
+          pages.hidden = false;
+          buildPages(pageBase, pageCount, title);
+        } else if (useVideo) {
+          frame.hidden = true;
+          frame.removeAttribute("src");
+          if (pages) { pages.hidden = true; pages.textContent = ""; }
+          video.hidden = false;
+          video.setAttribute("src", src);
+        } else {
+          if (pages) { pages.hidden = true; pages.textContent = ""; }
+          video && (video.hidden = true, video.removeAttribute("src"));
+          frame.hidden = false;
+          frame.setAttribute("title", title);
+          /* Sandbox third-party embeds only. Applying it to a same-origin PDF
+             stops Chrome's built-in viewer rendering it. */
+          if (/^https?:\/\//i.test(src)) {
+            frame.setAttribute("sandbox",
+              "allow-scripts allow-same-origin allow-presentation");
+          } else {
+            frame.removeAttribute("sandbox");
+          }
+          frame.setAttribute("src", src);
+        }
+
+        opener = btn;
+        if (lenis) lenis.stop();
+        root.classList.add("lb-open");   // reuse the existing scroll lock
+        dlg.showModal();
+      });
+    });
+
+    closeBtn.addEventListener("click", function () { dlg.close(); });
+    dlg.addEventListener("click", function (e) {
+      if (e.target === dlg) dlg.close();
+    });
+
+    dlg.addEventListener("close", function () {
+      /* drop the src so a closed viewer stops loading or playing */
+      frame.removeAttribute("src");
+      if (video) {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();          // abandons the buffered stream, not just paused
+        video.hidden = true;
+      }
+      if (pages) { pages.textContent = ""; pages.hidden = true; }
+      root.classList.remove("lb-open");
+      if (lenis) lenis.start();
+      if (opener) opener.focus();
+      opener = null;
+    });
+  })();
+
+  /* ---------------------------------------------------------------------
+     Practice filter
+
+     The chip row carries `hidden` in the markup and is revealed here, so a
+     page without JavaScript shows every card rather than offering a control
+     that cannot do anything.
+     --------------------------------------------------------------------- */
+  (function projFilter() {
+    var wrap = document.getElementById("projFilter");
+    var grid = document.getElementById("projGrid");
+    if (!wrap || !grid) return;
+
+    var cards = $$(".proj-card", grid);
+    var chips = $$(".filter-chip", wrap);
+    var countEl = document.getElementById("projCount");
+    if (!cards.length || !chips.length) return;
+
+    wrap.hidden = false;
+
+    function apply(key, fromClick) {
+      var shown = [];
+      cards.forEach(function (card) {
+        var match = key === "all" || card.getAttribute("data-group") === key;
+        card.hidden = !match;
+        if (match) shown.push(card);
+      });
+
+      chips.forEach(function (chip) {
+        chip.setAttribute("aria-pressed",
+          String(chip.getAttribute("data-filter") === key));
+      });
+
+      if (countEl) {
+        countEl.textContent = shown.length +
+          (shown.length === 1 ? " project" : " projects");
+      }
+
+      /* The grid entrance tween sets opacity 0 on cards that have not been
+         scrolled to yet. Once the visitor is driving the filter, show what
+         they asked for rather than leaving it invisible below the fold. */
+      if (fromClick && animate) {
+        gsap.set(shown, { opacity: 1, y: 0 });
+      }
+      if (fromClick && hasST) ScrollTrigger.refresh();
+    }
+
+    chips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        apply(chip.getAttribute("data-filter"), true);
+      });
+    });
+
+    apply("all", false);
   })();
 
   /* ---------------------------------------------------------------------
