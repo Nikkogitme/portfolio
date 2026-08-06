@@ -1084,7 +1084,11 @@
            instead of display, and when they do, an embedded PDF shows a
            download prompt instead of the document. Images always render.
            main.js fills this from data-viewer-pages. -->
-      <div class="viewer-pages" id="viewerPages" hidden></div>
+      <!-- data-lenis-prevent: Lenis binds touch handling on the whole document
+           and keeps swallowing it inside nested scrollers even after stop(),
+           so on iOS this panel could not be swiped while a mouse wheel worked
+           fine on desktop. This tells Lenis to leave events here alone. -->
+      <div class="viewer-pages" id="viewerPages" data-lenis-prevent hidden></div>
     </div>
     <p class="viewer-note" id="viewerNote"></p>
   </div>

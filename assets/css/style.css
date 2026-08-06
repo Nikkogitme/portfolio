@@ -1533,6 +1533,17 @@ html.no-gsap .hero-title .line { overflow: visible; }
   padding: 1.1rem clamp(0.6rem, 3vw, 2.5rem);
   background: #22252b;
   -webkit-overflow-scrolling: touch;
+  /* claim the vertical swipe for this panel, so iOS routes it here rather
+     than to the page behind the dialog */
+  touch-action: pan-y;
+}
+/* The pages cover almost the whole panel, so they must pass the swipe up to
+   the scroller rather than claim or block it. touch-action must stay pan-y
+   here: `none` would stop the panel scrolling wherever a finger lands on an
+   image, which is nearly everywhere. */
+.viewer-pages img {
+  touch-action: pan-y;
+  pointer-events: none;
 }
 .viewer-pages img {
   display: block;
