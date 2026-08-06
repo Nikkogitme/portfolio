@@ -586,7 +586,11 @@
      --------------------------------------------------------------------- */
   (function sampleViewer() {
     var dlg = document.getElementById("viewer");
-    var triggers = $$(".case-cta");
+    /* Two kinds of trigger open the same viewer: the "see a sample" buttons on
+       the Design Technology cases, and any project card that carries its own
+       portfolio pages instead of an image gallery. */
+    var triggers = $$(".case-cta")
+      .concat($$(".proj-card[data-viewer-pages] .proj-trigger"));
     if (!triggers.length) return;
 
     /* No dialog support, or no dialog at all: leave the triggers off the page
@@ -609,7 +613,8 @@
 
     var NOTE = {
       doc: "Sample document, shown read-only in this window.",
-      video: "Sample recording, played in this window."
+      video: "Sample recording, played in this window.",
+      project: "Portfolio pages for this project. Scroll to read through."
     };
 
     /* Build the page stack for a document. Images are created with
@@ -631,17 +636,33 @@
     }
 
     triggers.forEach(function (btn) {
-      var src = btn.getAttribute("data-viewer-src");
-      var pageCount = parseInt(btn.getAttribute("data-viewer-pages"), 10);
-      var pageBase = btn.getAttribute("data-viewer-base");
+      /* A case button carries its own data. A project trigger is a bare button
+         inside the card, so read the card's attributes instead. */
+      var host = btn.closest ? (btn.closest("[data-viewer-pages]") || btn) : btn;
+      var src = host.getAttribute("data-viewer-src");
+      var pageCount = parseInt(host.getAttribute("data-viewer-pages"), 10);
+      var pageBase = host.getAttribute("data-viewer-base");
       var isDoc = pageCount > 0 && pageBase;
-      if (!src && !isDoc) { btn.hidden = true; return; }   // not wired up yet
+      if (!src && !isDoc) {
+        /* An unwired case button is hidden; a project trigger is left alone so
+           the card still behaves normally. */
+        if (btn.classList.contains("case-cta")) btn.hidden = true;
+        return;
+      }
 
       btn.addEventListener("click", function () {
-        var title = btn.getAttribute("data-viewer-title") || "";
+        var title = host.getAttribute("data-viewer-title") ||
+                    host.getAttribute("data-title") || "";
         titleEl.textContent = title;
-        if (metaEl) metaEl.textContent = btn.getAttribute("data-viewer-meta") || "";
-        if (noteEl) noteEl.textContent = NOTE[btn.getAttribute("data-viewer-kind")] || "";
+        if (metaEl) {
+          metaEl.textContent = host.getAttribute("data-viewer-meta") ||
+                               host.getAttribute("data-meta") || "";
+        }
+        if (noteEl) {
+          var kind = host.getAttribute("data-viewer-kind") ||
+                     (host.classList.contains("proj-card") ? "project" : "doc");
+          noteEl.textContent = NOTE[kind] || "";
+        }
         /* A local video belongs in the video element, not an iframe: an
            iframed mp4 gets the browser's bare player with a download button
            and no poster. A document renders as page images, because an
@@ -723,6 +744,13 @@
     var chips = $$(".filter-chip", wrap);
     var countEl = document.getElementById("projCount");
     if (!cards.length || !chips.length) return;
+
+    /* Nothing to filter with a single practice: offering "All work / Bates
+       Smart" over one group is noise. The row comes back on its own once a
+       second group exists. */
+    var groups = {};
+    cards.forEach(function (c) { groups[c.getAttribute("data-group")] = 1; });
+    if (Object.keys(groups).length < 2) return;
 
     wrap.hidden = false;
 
@@ -814,6 +842,36 @@
       return clean;
     }
 
+    var roleEl = document.getElementById("lbRole");
+    var factsEl = document.getElementById("lbFacts");
+
+    /* Same defensive posture as the gallery: a malformed attribute yields an
+       empty fact list rather than taking the lightbox down, and every value
+       goes in through textContent so it can never become markup. */
+    function renderFacts(raw) {
+      if (!factsEl) return;
+      factsEl.textContent = "";
+      if (!raw) return;
+      var rows;
+      try {
+        rows = JSON.parse(raw);
+      } catch (err) {
+        if (window.console) console.warn("Lightbox: facts JSON is not parseable.", err);
+        return;
+      }
+      if (!Array.isArray(rows)) return;
+      rows.forEach(function (row) {
+        if (!Array.isArray(row) || row.length < 2) return;
+        if (typeof row[0] !== "string" || typeof row[1] !== "string") return;
+        var dt = document.createElement("dt");
+        dt.textContent = row[0];
+        var dd = document.createElement("dd");
+        dd.textContent = row[1];
+        factsEl.appendChild(dt);
+        factsEl.appendChild(dd);
+      });
+    }
+
     var gallery = [];
     var index = 0;
     var opener = null;
@@ -845,6 +903,9 @@
     $$(".proj-card").forEach(function (card) {
       var trigger = $(".proj-trigger", card);
       if (!trigger) return;
+      /* This card shows its portfolio pages in the viewer instead. Leave it
+         alone, or both dialogs would open on the same click. */
+      if (card.getAttribute("data-viewer-pages")) return;
 
       trigger.addEventListener("click", function () {
         var items = parseGallery(card.getAttribute("data-gallery"));
@@ -856,6 +917,8 @@
         baseDesc = card.getAttribute("data-desc") || "";
         titleEl.textContent = card.getAttribute("data-title") || "";
         if (metaEl) metaEl.textContent = card.getAttribute("data-meta") || "";
+        if (roleEl) roleEl.textContent = card.getAttribute("data-role") || "";
+        renderFacts(card.getAttribute("data-facts"));
 
         render();
         if (lenis) lenis.stop();

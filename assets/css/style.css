@@ -757,11 +757,12 @@ em, .em {
 }
 
 /* ---------- 11. Projects ---------- */
+/* No align-items: start. Cards stretch to their row so a tall card cannot
+   leave a hole beside a short one. */
 .proj-grid {
   display: grid;
   gap: clamp(1rem, 2vw, 1.5rem);
   grid-template-columns: 1fr;
-  align-items: start;
 }
 @media (min-width: 620px)  { .proj-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1000px) { .proj-grid { grid-template-columns: repeat(6, 1fr); } }
@@ -781,10 +782,6 @@ em, .em {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.55rem 0.9rem;
-  /* Same step as .cases uses above itself, so the Design Technology group and
-     the project grid are separated by one consistent interval rather than
-     running together. */
-  margin-top: clamp(3rem, 6vw, 5rem);
   margin-bottom: clamp(1.2rem, 2.5vw, 1.9rem);
 }
 /* Named filter-chip, not chip: `.chip` is already taken by the inline images
@@ -826,7 +823,11 @@ em, .em {
 
 .proj-card {
   position: relative;
-  display: block;
+  /* column so the body can absorb the leftover height and every card in a row
+     ends flush, whatever length its copy runs to */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   width: 100%;
   text-align: left;
   background: var(--paper-raised);
@@ -855,15 +856,20 @@ em, .em {
 /* The image drives the box height, so no per-card aspect-ratio is needed and
    there are no inline styles to whitelist in a CSP. max-height caps the very
    tall tower renders; object-fit then crops those (and only those). */
+/* A fixed frame, not the image's own proportions. Portrait renders and
+   landscape sheets now occupy the same box, which is what stops one tall card
+   opening a gap next to a short one. */
 .proj-media {
   position: relative;
   overflow: hidden;
+  aspect-ratio: 4 / 3;
+  flex: none;
   background: var(--paper-sunk);
 }
 .proj-media img {
   width: 100%;
-  height: auto;
-  max-height: 520px;
+  height: 100%;
+  object-fit: cover;
   object-fit: cover;
   object-position: 50% 30%;
   transition: transform 0.9s var(--ease);
@@ -902,7 +908,14 @@ em, .em {
 .proj-card:hover .proj-view { opacity: 1; transform: none; }
 .proj-view svg { width: 12px; height: 12px; }
 
-.proj-body { padding: 1.05rem 1.15rem 1.2rem; }
+.proj-body {
+  padding: 1.05rem 1.15rem 1.2rem;
+  flex: 1;                 /* takes up the slack so card feet line up */
+  display: flex;
+  flex-direction: column;
+}
+/* the role line sits on the bottom edge of every card */
+.proj-body .role { margin-top: auto; }
 .proj-body h3 {
   font-size: 1.02rem;
   font-weight: 550;
@@ -929,7 +942,13 @@ em, .em {
 }
 
 /* ---------- 11b. Case studies ---------- */
-.cases { margin-top: clamp(3rem, 6vw, 5rem); }
+/* Space on both sides of the group. The bottom margin lives here rather than
+   on .proj-filter because that row hides itself when there is only one
+   practice to filter, and a margin on a hidden element separates nothing. */
+.cases {
+  margin-top: clamp(3rem, 6vw, 5rem);
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+}
 
 .cases-head {
   display: flex;
@@ -1318,6 +1337,34 @@ html.gsap-ready [data-reveal] { opacity: 0; }
 html.no-gsap [data-reveal] { opacity: 1 !important; transform: none !important; }
 html.no-gsap .tl-line { transform: scaleY(1); }
 html.no-gsap .hero-title .line { overflow: visible; }
+
+/* Structured project record in the lightbox. One schema for every project;
+   rows the source portfolio does not state are simply absent. */
+.lb-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.3rem 1rem;
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--rule-dark);
+  font-size: 0.82rem;
+}
+.lb-facts dt {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-dark-60);
+  padding-top: 0.18rem;
+  white-space: nowrap;
+}
+.lb-facts dd { color: var(--on-dark); }
+.lb-facts:empty { display: none; }
+
+@media (max-width: 640px) {
+  .lb-facts { grid-template-columns: 1fr; gap: 0.1rem; }
+  .lb-facts dd { margin-bottom: 0.45rem; }
+}
 
 /* ---------- 16b. Case CTA and viewer ----------
    The "see a sample" trigger on a case card, and the dialog it opens.
