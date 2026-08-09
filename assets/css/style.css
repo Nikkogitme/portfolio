@@ -1146,6 +1146,7 @@ html.tools-ready.tools-dropped #toolGrid { cursor: default; }
    then. */
 .tool-reset {
   display: none;
+  margin-left: auto;   /* pin hard-right, independent of the cue text */
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.14em;
