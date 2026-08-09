@@ -1007,7 +1007,12 @@
           { chamfer: { radius: Math.min(s.h / 2, 18) },
             restitution: 0.35, friction: 0.4, frictionAir: 0.02 });
         M.Body.setStatic(body, true);          // held until release
-        body.plugin = { el: s.el, w: s.w, h: s.h };
+        /* homeX/homeY are the laid-out centre, so Reset can put each pill
+           back exactly where it started. */
+        body.plugin = {
+          el: s.el, w: s.w, h: s.h,
+          homeX: s.x + s.w / 2, homeY: s.y + s.h / 2
+        };
         return body;
       });
       M.Composite.add(engine.world, bodies);
@@ -1073,6 +1078,30 @@
     }
 
     grid.addEventListener("click", release);
+
+    /* Reset: freeze every pill and set it back to its laid-out home, then let
+       a fresh click drop them again. The button lives outside #toolGrid, so
+       clicking it never counts as a drop. */
+    function reset() {
+      if (!released) return;
+      columns.forEach(function (col) {
+        col.bodies.forEach(function (b) {
+          M.Body.setStatic(b, true);
+          M.Body.setPosition(b, { x: b.plugin.homeX, y: b.plugin.homeY });
+          M.Body.setAngle(b, 0);
+          M.Body.setVelocity(b, { x: 0, y: 0 });
+          M.Body.setAngularVelocity(b, 0);
+        });
+        paint(col);
+      });
+      released = false;
+      running = false;
+      root.classList.remove("tools-dropped");
+      sync();
+    }
+
+    var resetBtn = document.getElementById("toolReset");
+    if (resetBtn) resetBtn.addEventListener("click", reset);
 
     /* Dragging, desktop pointers only: on touch this would fight the scroll. */
     if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {

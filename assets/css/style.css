@@ -1132,9 +1132,35 @@ em, .em {
   text-transform: uppercase;
   color: var(--on-dark-60);
 }
-html.tools-ready .tool-cue { display: block; }
+html.tools-ready .tool-cue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
 html.tools-ready #toolGrid { cursor: pointer; }
 html.tools-ready.tools-dropped #toolGrid { cursor: default; }
+
+/* Reset restores the pills to their laid-out positions. It only earns its
+   place once the tools have actually been dropped, so it stays hidden until
+   then. */
+.tool-reset {
+  display: none;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-lift);
+  background: none;
+  border: 1px solid var(--rule-dark);
+  border-radius: 999px;
+  padding: 0.42rem 0.95rem;
+  cursor: pointer;
+  transition: color 0.25s var(--ease-soft),
+              border-color 0.25s var(--ease-soft);
+}
+.tool-reset:hover { color: var(--on-dark); border-color: var(--accent-lift); }
+html.tools-ready.tools-dropped .tool-reset { display: inline-flex; }
 
 /* ---------- 13. Education and certification ---------- */
 .edu-grid {
