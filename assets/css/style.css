@@ -1276,16 +1276,96 @@ html.tools-ready.tools-dropped .tool-reset { display: inline-flex; }
   font-size: 0.9rem;
 }
 
-/* Copy-email button: swap the copy glyph for a tick and flip to a filled
+/* Sweep pills: an ink fill rises from the base as a dome that flattens, while
+   the label rolls up to reveal an identical light copy and the icon flips to
+   match. Mirrors the CTA treatment on educabellos.com, rebuilt on the .btn
+   token system. The button stays transparent; a .btn-fill layer paints the
+   sweep and .btn-face rides above it. */
+.btn--sweep {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+  transition: border-color 0.5s var(--ease-soft);
+}
+.btn--sweep:hover {
+  background: transparent;
+  color: var(--ink);              /* neutralise .btn--ghost:hover so the resting label stays dark while it rolls out */
+  border-color: var(--ink);
+}
+
+.btn--sweep .btn-fill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.btn--sweep .btn-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  border-radius: 50% 50% 0 0;
+  transform: translateY(101%);
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0, 1),
+              border-radius 0.55s cubic-bezier(0.4, 0, 0, 1);
+}
+.btn--sweep:hover .btn-fill::before {
+  transform: translateY(0);
+  border-radius: 0;
+}
+
+.btn--sweep .btn-face {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;               /* clip window for the label roll */
+}
+.btn--sweep .btn-face svg { transition: color 0.45s var(--ease-soft); }
+.btn--sweep:hover .btn-face svg { color: var(--on-dark); }
+
+/* Label roll: the visible text lifts out and its identical light copy rises in. */
+.btn--sweep .btn-label {
+  position: relative;
+  display: block;
+  line-height: 1.15;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn--sweep .btn-label::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 115%;
+  left: 0;
+  white-space: nowrap;
+  color: var(--on-dark);
+}
+.btn--sweep:hover .btn-label { transform: translateY(-115%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn--sweep .btn-fill::before,
+  .btn--sweep .btn-label,
+  .btn--sweep .btn-face svg { transition: none; }
+  .btn--sweep:hover .btn-label { transform: none; }
+  .btn--sweep:hover .btn-face { color: var(--on-dark); }   /* keep label legible on the fill without the roll */
+}
+
+/* Copy-email button: swap the copy glyph for a tick and hold the fill up in an
    accent state for a moment once the address is on the clipboard. */
 #copyEmail .ic-done { display: none; }
 #copyEmail.is-copied .ic-idle { display: none; }
 #copyEmail.is-copied .ic-done { display: inline-block; }
-#copyEmail.is-copied {
+#copyEmail.is-copied { border-color: var(--accent); }
+#copyEmail.is-copied .btn-fill::before {
   background: var(--accent);
-  color: var(--on-dark);
-  border-color: var(--accent);
+  transform: translateY(0);
+  border-radius: 0;
 }
+#copyEmail.is-copied .btn-face,
+#copyEmail.is-copied .btn-face svg { color: var(--on-dark); }
 
 .footer {
   border-top: 1px solid var(--rule);
@@ -1654,6 +1734,46 @@ html.preloading, html.preloading body { overflow: hidden; }
   color: var(--ink);
 }
 
+/* ---------- 17b. Custom cursor (progressive enhancement) ----------
+   A dot that trails the pointer and swells over interactive targets, using
+   mix-blend-mode so it reads on any background. main.js adds .has-cursor to
+   <html> and creates .cursor-dot ONLY on a fine pointer with motion allowed,
+   so touch, coarse pointers and reduced-motion users keep the native cursor
+   untouched. The element never exists without script, so this can only add. */
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink);
+  pointer-events: none;
+  z-index: 500;              /* above the preloader (400) and lightbox */
+  opacity: 0;
+  will-change: transform;
+  transition: width 0.28s var(--ease), height 0.28s var(--ease),
+              background 0.28s var(--ease), opacity 0.3s var(--ease-soft);
+}
+.cursor-dot.is-visible { opacity: 1; }
+.cursor-dot.is-active {          /* over a link, button or pill */
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  mix-blend-mode: difference;
+}
+.has-cursor,
+.has-cursor a,
+.has-cursor button,
+.has-cursor .btn,
+.has-cursor summary,
+.has-cursor [role="button"] { cursor: none; }
+/* never swallow the caret where text is actually entered */
+.has-cursor input,
+.has-cursor textarea,
+.has-cursor select,
+.has-cursor [contenteditable="true"] { cursor: auto; }
+
 /* ---------- 18. Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -1675,7 +1795,7 @@ html.preloading, html.preloading body { overflow: hidden; }
 /* ---------- 19. Print ---------- */
 @media print {
   .topbar, .rail, #heroCanvas, .lightbox, .footer .to-top,
-  .proj-trigger, .proj-view, .preloader { display: none !important; }
+  .proj-trigger, .proj-view, .preloader, .cursor-dot { display: none !important; }
   body { background: #fff; }
   .section { padding-block: 1.5rem; break-inside: avoid; }
   .job-detail { height: auto !important; }

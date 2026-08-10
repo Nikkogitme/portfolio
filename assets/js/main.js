@@ -1148,12 +1148,18 @@
     var idle = btn.getAttribute("data-label") || "Email me";
     var timer = null;
 
+    function setLabel(text) {
+      if (!label) return;
+      label.textContent = text;
+      label.setAttribute("data-text", text);   /* keep the roll copy in sync */
+    }
+
     function confirmed() {
-      if (label) label.textContent = "Copied";
+      setLabel("Copied");
       btn.classList.add("is-copied");
       clearTimeout(timer);
       timer = setTimeout(function () {
-        if (label) label.textContent = idle;
+        setLabel(idle);
         btn.classList.remove("is-copied");
       }, 1600);
     }
@@ -1184,7 +1190,9 @@
      Magnetic buttons: desktop pointer only, decorative
      --------------------------------------------------------------------- */
   if (animate && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-    $$(".btn").forEach(function (btn) {
+    /* Sweep pills own their hover motion (fill plus label roll), so keep them
+       out of the magnetic drift to match the educabellos CTA feel. */
+    $$(".btn:not(.btn--sweep)").forEach(function (btn) {
       btn.addEventListener("pointermove", function (e) {
         var r = btn.getBoundingClientRect();
         gsap.to(btn, {
@@ -1197,5 +1205,67 @@
         gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1, 0.4)" });
       });
     });
+  }
+
+  /* ---------------------------------------------------------------------
+     Custom cursor: fine pointer only, motion allowed only
+
+     A dot trails the pointer and swells over interactive targets, using
+     mix-blend-mode so it reads on any background. Touch and coarse pointers,
+     and anyone with prefers-reduced-motion, keep the native cursor. Purely
+     decorative, so the node is created in script and never exists without it.
+     GSAP smooths the follow when present; without it the dot tracks 1:1.
+     --------------------------------------------------------------------- */
+  if (!reduce && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    (function customCursor() {
+      var dot = document.createElement("div");
+      dot.className = "cursor-dot";
+      dot.setAttribute("aria-hidden", "true");
+      document.body.appendChild(dot);
+      root.classList.add("has-cursor");
+
+      var moveX, moveY;
+      if (hasGSAP) {
+        gsap.set(dot, { xPercent: -50, yPercent: -50 });
+        moveX = gsap.quickTo(dot, "x", { duration: 0.18, ease: "power3.out" });
+        moveY = gsap.quickTo(dot, "y", { duration: 0.18, ease: "power3.out" });
+      }
+
+      var lastX = 0, lastY = 0, shown = false;
+      var place = rafThrottle(function () {
+        if (hasGSAP) { moveX(lastX); moveY(lastY); }
+        else { dot.style.transform = "translate(" + lastX + "px," + lastY + "px) translate(-50%,-50%)"; }
+      });
+
+      window.addEventListener("pointermove", function (e) {
+        if (e.pointerType && e.pointerType !== "mouse") return;   /* ignore pen/touch */
+        lastX = e.clientX;
+        lastY = e.clientY;
+        if (!shown) { shown = true; dot.classList.add("is-visible"); }
+        place();
+      }, { passive: true });
+
+      /* hide while the pointer is off the document, show again on return */
+      document.addEventListener("mouseleave", function () {
+        shown = false;
+        dot.classList.remove("is-visible");
+      });
+      document.addEventListener("mouseenter", function () {
+        shown = true;
+        dot.classList.add("is-visible");
+      });
+
+      /* swell over interactive targets via delegation, so nodes added later
+         (or swapped icons) are covered without re-binding */
+      var interactive = "a, button, .btn, [role='button'], summary";
+      document.addEventListener("pointerover", function (e) {
+        if (e.target.closest && e.target.closest(interactive)) dot.classList.add("is-active");
+      });
+      document.addEventListener("pointerout", function (e) {
+        if (!e.target.closest || !e.target.closest(interactive)) return;
+        var to = e.relatedTarget;
+        if (!to || !(to.closest && to.closest(interactive))) dot.classList.remove("is-active");
+      });
+    })();
   }
 })();

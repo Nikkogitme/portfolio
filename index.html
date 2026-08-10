@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20260810">
+<link rel="stylesheet" href="assets/css/style.css?v=20260811">
 
 <!-- Conservative Person data. Deliberately omits worksFor, jobTitle, sameAs and
      any URL, because none of those can be verified from the source material. -->
@@ -1036,20 +1036,29 @@
       </p>
 
       <div class="contact-actions" data-reveal>
-        <button class="btn btn--ghost btn--pill" type="button" id="copyEmail"
+        <button class="btn btn--ghost btn--pill btn--sweep" type="button" id="copyEmail"
                 data-email="nikko.sudirman@gmail.com" data-label="Email me">
-          <span class="btn-label" aria-live="polite">Email me</span>
-          <svg class="ic-idle" aria-hidden="true"><use href="#ic-copy"/></svg>
-          <svg class="ic-done" aria-hidden="true"><use href="#ic-check"/></svg>
+          <span class="btn-fill" aria-hidden="true"></span>
+          <span class="btn-face">
+            <span class="btn-label" data-text="Email me" aria-live="polite">Email me</span>
+            <svg class="ic-idle" aria-hidden="true"><use href="#ic-copy"/></svg>
+            <svg class="ic-done" aria-hidden="true"><use href="#ic-check"/></svg>
+          </span>
         </button>
-        <a class="btn btn--ghost btn--pill" href="assets/docs/Nikko-Sudirman-Resume-2026.pdf" download>
-          Download resume
-          <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+        <a class="btn btn--ghost btn--pill btn--sweep" href="assets/docs/Nikko-Sudirman-Resume-2026.pdf" download>
+          <span class="btn-fill" aria-hidden="true"></span>
+          <span class="btn-face">
+            <span class="btn-label" data-text="Download resume">Download resume</span>
+            <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+          </span>
         </a>
-        <a class="btn btn--ghost btn--pill" href="https://www.linkedin.com/in/nikko-sudirman/"
+        <a class="btn btn--ghost btn--pill btn--sweep" href="https://www.linkedin.com/in/nikko-sudirman/"
            target="_blank" rel="noopener noreferrer">
-          <svg aria-hidden="true"><use href="#ic-linkedin"/></svg>
-          Connect with me
+          <span class="btn-fill" aria-hidden="true"></span>
+          <span class="btn-face">
+            <svg aria-hidden="true"><use href="#ic-linkedin"/></svg>
+            <span class="btn-label" data-text="Connect with me">Connect with me</span>
+          </span>
         </a>
       </div>
     </div>
@@ -1154,6 +1163,6 @@
 <!-- Physics solver for the Toolkit pills. Optional like the rest: if it fails
      to load, main.js leaves the pills in their normal layout. -->
 <script defer src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script defer src="assets/js/main.js?v=20260810"></script>
+<script defer src="assets/js/main.js?v=20260811"></script>
 </body>
 </html>
