@@ -1133,6 +1133,54 @@
   })();
 
   /* ---------------------------------------------------------------------
+     Contact: copy email to clipboard
+
+     The button carries the address in data-email, so the markup stays the
+     single source of truth. On success the label reads "Copied" and the
+     glyph flips to a tick for a moment, then reverts. execCommand is the
+     fallback for browsers without the async Clipboard API.
+     --------------------------------------------------------------------- */
+  (function copyEmail() {
+    var btn = document.getElementById("copyEmail");
+    if (!btn) return;
+    var label = btn.querySelector(".btn-label");
+    var email = btn.getAttribute("data-email") || "";
+    var idle = btn.getAttribute("data-label") || "Email me";
+    var timer = null;
+
+    function confirmed() {
+      if (label) label.textContent = "Copied";
+      btn.classList.add("is-copied");
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (label) label.textContent = idle;
+        btn.classList.remove("is-copied");
+      }, 1600);
+    }
+
+    function legacyCopy() {
+      var ta = document.createElement("textarea");
+      ta.value = email;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "absolute";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch (e) { /* nothing else to try */ }
+      document.body.removeChild(ta);
+      confirmed();
+    }
+
+    btn.addEventListener("click", function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(confirmed, legacyCopy);
+      } else {
+        legacyCopy();
+      }
+    });
+  })();
+
+  /* ---------------------------------------------------------------------
      Magnetic buttons: desktop pointer only, decorative
      --------------------------------------------------------------------- */
   if (animate && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {

@@ -1261,42 +1261,31 @@ html.tools-ready.tools-dropped .tool-reset { display: inline-flex; }
   color: var(--ink-70);
 }
 
-.contact-links {
+/* Contact actions: outlined pill buttons. Reuse the shared .btn / .btn--ghost
+   treatment, just fully rounded and a touch larger for a standalone row. */
+.contact-actions {
   margin-top: clamp(2.5rem, 5vw, 3.5rem);
-  display: grid;
-  gap: 1px;
-  background: var(--rule);
-  border-block: 1px solid var(--rule);
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
 }
-@media (min-width: 700px) { .contact-links { grid-template-columns: repeat(3, 1fr); } }
+.btn--pill {
+  border-radius: 999px;
+  padding: 0.75rem 1.4rem;
+  min-height: 46px;
+  font-size: 0.9rem;
+}
 
-.contact-links a {
-  background: var(--paper);
-  padding: 1.4rem 1.3rem;
-  display: grid;
-  gap: 0.4rem;
-  align-content: start;
-  position: relative;
-  transition: background 0.4s var(--ease-soft);
+/* Copy-email button: swap the copy glyph for a tick and flip to a filled
+   accent state for a moment once the address is on the clipboard. */
+#copyEmail .ic-done { display: none; }
+#copyEmail.is-copied .ic-idle { display: none; }
+#copyEmail.is-copied .ic-done { display: inline-block; }
+#copyEmail.is-copied {
+  background: var(--accent);
+  color: var(--on-dark);
+  border-color: var(--accent);
 }
-.contact-links a:hover { background: var(--paper-raised); }
-.contact-links .val {
-  font-family: var(--sans);
-  font-weight: 500;
-  font-size: clamp(1.1rem, 1.9vw, 1.45rem);
-  letter-spacing: -0.015em;
-  line-height: 1.25;
-  word-break: break-word;
-}
-.contact-links a .arrow {
-  position: absolute;
-  top: 1.4rem; right: 1.3rem;
-  color: var(--ink-30);
-  transition: all 0.4s var(--ease);
-}
-.contact-links a:hover .arrow { color: var(--accent); transform: translate(3px, -3px); }
-.contact-links a .arrow svg { width: 16px; height: 16px; }
 
 .footer {
   border-top: 1px solid var(--rule);
