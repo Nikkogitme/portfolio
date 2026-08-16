@@ -603,36 +603,84 @@
     var frame = document.getElementById("viewerFrame");
     var video = document.getElementById("viewerVideo");
     var pages = document.getElementById("viewerPages");
+    var pageImg = document.getElementById("viewerPageImg");
+    var pagePrev = document.getElementById("viewerPrev");
+    var pageNext = document.getElementById("viewerNext");
     var titleEl = document.getElementById("viewerTitle");
     var metaEl = document.getElementById("viewerMeta");
     var noteEl = document.getElementById("viewerNote");
+    var countEl = document.getElementById("viewerCount");
     var closeBtn = document.getElementById("viewerClose");
+    var fsBtn = document.getElementById("viewerFullscreen");
+    var zoomBox = document.getElementById("viewerZoom");
+    var zoomInBtn = document.getElementById("viewerZoomIn");
+    var zoomOutBtn = document.getElementById("viewerZoomOut");
+    var zoomLevelEl = document.getElementById("viewerZoomLevel");
     if (!frame || !titleEl || !closeBtn) return;
 
     var opener = null;
 
     var NOTE = {
-      doc: "Sample document, shown read-only in this window.",
+      doc: "Sample document, shown read-only in this window. Use the arrows or the left/right keys to page through.",
       video: "Sample recording, played in this window.",
-      project: "Portfolio pages for this project. Scroll to read through."
+      project: "Portfolio pages for this project. Use the arrows or the left/right keys to page through."
     };
 
-    /* Build the page stack for a document. Images are created with
-       createElement and setAttribute, never from a markup string, so a
-       data-viewer-base value can never become markup. */
-    function buildPages(base, count, title) {
-      pages.textContent = "";
-      for (var i = 1; i <= count; i++) {
-        var img = document.createElement("img");
-        img.setAttribute("src", base + i + ".webp");
-        img.setAttribute("alt", title + ", page " + i + " of " + count);
-        /* first page eager so the viewer is never briefly empty */
-        img.setAttribute("loading", i === 1 ? "eager" : "lazy");
-        img.setAttribute("decoding", "async");
-        img.setAttribute("draggable", "false");
-        pages.appendChild(img);
+    /* Paged document state: one page image at a time, like the project
+       lightbox, rather than a long scrolling stack. */
+    var pageBase = "", pageTitle = "", pageTotal = 0, pageIndex = 0;
+
+    /* Zoom state. fitWidth is the image's rendered width at 1x (fit to the
+       box, whatever its aspect ratio), measured fresh off the box the first
+       time a page is zoomed rather than computed, so it is exact regardless
+       of viewport size or page shape. It resets to 0 on every page change so
+       the next zoom-in re-measures against the new page. */
+    var ZOOM_MIN = 1, ZOOM_MAX = 3, ZOOM_STEP = 0.5;
+    var zoom = 1, fitWidth = 0;
+
+    function applyZoom() {
+      if (!pages || !pageImg) return;
+      var zoomed = zoom > 1;
+      pages.classList.toggle("is-zoomed", zoomed);
+      pageImg.style.width = zoomed && fitWidth ? (fitWidth * zoom) + "px" : "";
+      if (!zoomed) { pages.scrollLeft = 0; pages.scrollTop = 0; }
+      if (zoomLevelEl) zoomLevelEl.textContent = Math.round(zoom * 100) + "%";
+      if (zoomOutBtn) zoomOutBtn.disabled = zoom <= ZOOM_MIN;
+      if (zoomInBtn) zoomInBtn.disabled = zoom >= ZOOM_MAX;
+    }
+
+    function setZoom(z) {
+      if (!pageImg) return;
+      if (!fitWidth) fitWidth = pageImg.getBoundingClientRect().width;
+      zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+      applyZoom();
+    }
+
+    function zoomReset() {
+      zoom = 1;
+      fitWidth = 0;
+      applyZoom();
+    }
+
+    function renderPage() {
+      if (!pages || !pageImg) return;
+      zoomReset();
+      var n = pageIndex + 1;
+      pageImg.setAttribute("src", pageBase + n + ".webp");
+      pageImg.setAttribute("alt", pageTitle + ", page " + n + " of " + pageTotal);
+      if (countEl) countEl.textContent = pageTotal > 1 ? n + " of " + pageTotal : "";
+      var multi = pageTotal > 1;
+      if (pagePrev) pagePrev.hidden = !multi;
+      if (pageNext) pageNext.hidden = !multi;
+      if (animate) {
+        gsap.fromTo(pageImg, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" });
       }
-      pages.scrollTop = 0;
+    }
+
+    function stepPage(dir) {
+      if (pageTotal < 2) return;
+      pageIndex = (pageIndex + dir + pageTotal) % pageTotal;
+      renderPage();
     }
 
     triggers.forEach(function (btn) {
@@ -641,8 +689,8 @@
       var host = btn.closest ? (btn.closest("[data-viewer-pages]") || btn) : btn;
       var src = host.getAttribute("data-viewer-src");
       var pageCount = parseInt(host.getAttribute("data-viewer-pages"), 10);
-      var pageBase = host.getAttribute("data-viewer-base");
-      var isDoc = pageCount > 0 && pageBase;
+      var pageBaseAttr = host.getAttribute("data-viewer-base");
+      var isDoc = pageCount > 0 && pageBaseAttr;
       if (!src && !isDoc) {
         /* An unwired case button is hidden; a project trigger is left alone so
            the card still behaves normally. */
@@ -665,26 +713,33 @@
         }
         /* A local video belongs in the video element, not an iframe: an
            iframed mp4 gets the browser's bare player with a download button
-           and no poster. A document renders as page images, because an
-           embedded PDF is at the mercy of the visitor's browser settings.
-           Anything else goes to the frame. */
+           and no poster. A document pages through one image at a time,
+           because an embedded PDF is at the mercy of the visitor's browser
+           settings. Anything else goes to the frame. */
         var useVideo = video && btn.getAttribute("data-viewer-kind") === "video" &&
                        !/^https?:\/\//i.test(src);
 
-        if (isDoc && pages) {
+        if (isDoc && pages && pageImg) {
           frame.hidden = true;
           frame.removeAttribute("src");
           if (video) { video.hidden = true; video.removeAttribute("src"); }
+          pageBase = pageBaseAttr;
+          pageTitle = title;
+          pageTotal = pageCount;
+          pageIndex = 0;
           pages.hidden = false;
-          buildPages(pageBase, pageCount, title);
+          if (zoomBox) zoomBox.hidden = false;
+          renderPage();
         } else if (useVideo) {
           frame.hidden = true;
           frame.removeAttribute("src");
-          if (pages) { pages.hidden = true; pages.textContent = ""; }
+          if (pages) pages.hidden = true;
+          if (zoomBox) zoomBox.hidden = true;
           video.hidden = false;
           video.setAttribute("src", src);
         } else {
-          if (pages) { pages.hidden = true; pages.textContent = ""; }
+          if (pages) pages.hidden = true;
+          if (zoomBox) zoomBox.hidden = true;
           video && (video.hidden = true, video.removeAttribute("src"));
           frame.hidden = false;
           frame.setAttribute("title", title);
@@ -706,6 +761,67 @@
       });
     });
 
+    if (pagePrev) pagePrev.addEventListener("click", function () { stepPage(-1); });
+    if (pageNext) pageNext.addEventListener("click", function () { stepPage(1); });
+
+    if (zoomInBtn) zoomInBtn.addEventListener("click", function () { setZoom(zoom + ZOOM_STEP); });
+    if (zoomOutBtn) zoomOutBtn.addEventListener("click", function () { setZoom(zoom - ZOOM_STEP); });
+    if (pageImg) {
+      pageImg.addEventListener("dblclick", function () { setZoom(zoom > 1 ? 1 : 2); });
+    }
+
+    /* Drag to pan once zoomed. Pointer capture keeps the drag going even if
+       the cursor leaves the image mid-gesture. */
+    var panning = false, panStartX = 0, panStartY = 0, panScrollX = 0, panScrollY = 0;
+    if (pages) {
+      pages.addEventListener("pointerdown", function (e) {
+        if (!pages.classList.contains("is-zoomed")) return;
+        panning = true;
+        panStartX = e.clientX; panStartY = e.clientY;
+        panScrollX = pages.scrollLeft; panScrollY = pages.scrollTop;
+        pages.setPointerCapture(e.pointerId);
+      });
+      pages.addEventListener("pointermove", function (e) {
+        if (!panning) return;
+        pages.scrollLeft = panScrollX - (e.clientX - panStartX);
+        pages.scrollTop = panScrollY - (e.clientY - panStartY);
+      });
+      var endPan = function () { panning = false; };
+      pages.addEventListener("pointerup", endPan);
+      pages.addEventListener("pointercancel", endPan);
+    }
+
+    /* Fullscreen: feature-detected, so a browser without the API (older
+       Safari) simply never sees the button, per the site's rule of leaving a
+       trigger off rather than offering one that does nothing. */
+    var fsUse = fsBtn ? fsBtn.querySelector("use") : null;
+    var fsSupported = !!(dlg.requestFullscreen && document.exitFullscreen);
+    if (fsBtn && fsSupported) {
+      fsBtn.hidden = false;
+      fsBtn.addEventListener("click", function () {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          dlg.requestFullscreen().catch(function () { /* denied or unsupported mid-use: stay windowed */ });
+        }
+      });
+      document.addEventListener("fullscreenchange", function () {
+        var isFs = document.fullscreenElement === dlg;
+        fsBtn.setAttribute("aria-pressed", String(isFs));
+        fsBtn.setAttribute("aria-label", isFs ? "Exit fullscreen" : "Enter fullscreen");
+        if (fsUse) fsUse.setAttribute("href", isFs ? "#ic-compress" : "#ic-expand");
+      });
+    }
+
+    dlg.addEventListener("keydown", function (e) {
+      if (!pages || pages.hidden) return;   // only page/zoom while the document view is open
+      if (e.key === "ArrowRight") { e.preventDefault(); stepPage(1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); stepPage(-1); }
+      if (e.key === "+" || e.key === "=") { e.preventDefault(); setZoom(zoom + ZOOM_STEP); }
+      if (e.key === "-" || e.key === "_") { e.preventDefault(); setZoom(zoom - ZOOM_STEP); }
+      if (e.key === "0") { e.preventDefault(); zoomReset(); }
+    });
+
     closeBtn.addEventListener("click", function () { dlg.close(); });
     dlg.addEventListener("click", function (e) {
       if (e.target === dlg) dlg.close();
@@ -720,7 +836,13 @@
         video.load();          // abandons the buffered stream, not just paused
         video.hidden = true;
       }
-      if (pages) { pages.textContent = ""; pages.hidden = true; }
+      if (pages) pages.hidden = true;
+      if (zoomBox) zoomBox.hidden = true;
+      if (pageImg) { pageImg.removeAttribute("src"); pageImg.removeAttribute("alt"); }
+      if (countEl) countEl.textContent = "";
+      pageTotal = 0;
+      zoomReset();
+      if (document.fullscreenElement === dlg) document.exitFullscreen();
       root.classList.remove("lb-open");
       if (lenis) lenis.start();
       if (opener) opener.focus();

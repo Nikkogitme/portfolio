@@ -1576,6 +1576,17 @@ html.no-gsap .hero-title .line { overflow: visible; }
 }
 .viewer::backdrop { background: rgba(10, 11, 13, 0.82); }
 
+/* The dialog itself is the fullscreen element (main.js requests it), so the
+   fixed 92vh/900px cap gives way to the full viewport while it is active. */
+.viewer:fullscreen {
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  max-height: none;
+  border-radius: 0;
+}
+.viewer:fullscreen .viewer-shell { height: 100%; }
+
 /* A definite height here, not max-height. The stage below grows into the space
    left over, and flex needs something real to divide up: with only a
    max-height the stage collapses to nothing. */
@@ -1597,6 +1608,23 @@ html.no-gsap .hero-title .line { overflow: visible; }
   font-weight: var(--w-head);
   letter-spacing: var(--track-head);
 }
+.viewer-head-actions { display: flex; align-items: center; gap: 0.5rem; flex: none; }
+
+/* Dark-band twin of .lb-close, same circle, restyled for the viewer background. */
+.viewer-fullscreen {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-content: center;
+  border: 1px solid var(--rule-dark);
+  border-radius: 50%;
+  color: var(--on-dark);
+  transition: all 0.3s var(--ease);
+}
+.viewer-fullscreen:hover { background: var(--accent-lift); color: var(--ink); border-color: var(--accent-lift); }
+.viewer-fullscreen svg { width: 16px; height: 16px; }
+.viewer-fullscreen[hidden] { display: none; }
 
 /* min-height: 0 lets this actually shrink inside the column; without it the
    iframe's default intrinsic size sets a floor and pushes the note off. */
@@ -1620,48 +1648,128 @@ html.no-gsap .hero-title .line { overflow: visible; }
 }
 .viewer-stage [hidden] { display: none; }
 
-/* Document pages: a plain scrolling stack. No PDF plugin involved, so this
-   renders the same whatever the visitor's browser is set to do with PDFs. */
+/* Document pages: one page at a time, paged like the project lightbox,
+   rather than a scrolling stack. No PDF plugin involved, so this renders
+   the same whatever the visitor's browser is set to do with PDFs. */
 .viewer-pages {
+  position: relative;
   height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
   padding: 1.1rem clamp(0.6rem, 3vw, 2.5rem);
   background: #22252b;
-  -webkit-overflow-scrolling: touch;
-  /* claim the vertical swipe for this panel, so iOS routes it here rather
-     than to the page behind the dialog */
-  touch-action: pan-y;
-}
-/* The pages cover almost the whole panel, so they must pass the swipe up to
-   the scroller rather than claim or block it. touch-action must stay pan-y
-   here: `none` would stop the panel scrolling wherever a finger lands on an
-   image, which is nearly everywhere. */
-.viewer-pages img {
-  touch-action: pan-y;
-  pointer-events: none;
 }
 .viewer-pages img {
-  display: block;
-  width: 100%;
-  max-width: 900px;
+  max-width: min(900px, 100%);
+  max-height: 100%;
+  width: auto;
   height: auto;
-  margin-inline: auto;
+  object-fit: contain;
   background: #fff;
   box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.75);
   user-select: none;
   -webkit-user-drag: none;
 }
-.viewer-pages img + img { margin-top: 1.1rem; }
 
-.viewer-note {
+/* Zoomed state: the fit-to-box centring gives way to a scrollable pane so the
+   enlarged page can be panned. main.js sets the image's pixel width directly,
+   because a CSS transform: scale() would grow the paint without growing the
+   layout box, and this pane would have nothing to scroll. */
+.viewer-pages.is-zoomed {
+  display: block;
+  overflow: auto;
+  cursor: grab;
+}
+.viewer-pages.is-zoomed:active { cursor: grabbing; }
+.viewer-pages.is-zoomed img {
+  max-width: none;
+  max-height: none;
+  width: auto;
+  margin-inline: auto;
+}
+
+/* Floating cluster, bottom-right of the page. Doc-only: main.js shows it
+   alongside .viewer-pages and hides it for video/iframe content. */
+.viewer-zoom {
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.85rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink-bg) 70%, transparent);
+  border: 1px solid var(--rule-dark);
+}
+.viewer-zoom[hidden] { display: none; }
+.viewer-zbtn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-content: center;
+  border-radius: 50%;
+  color: var(--on-dark);
+  transition: all 0.3s var(--ease);
+}
+.viewer-zbtn:hover:not(:disabled) { background: var(--accent-lift); color: var(--ink); }
+.viewer-zbtn:disabled { opacity: 0.35; }
+.viewer-zbtn svg { width: 15px; height: 15px; }
+.viewer-zlevel {
+  min-width: 3.2em;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--on-dark-60);
+}
+
+/* Dark-band twin of .lb-nav: same shape and placement, restyled for the
+   viewer's near-black background instead of the light lightbox. */
+.viewer-nav {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink-bg) 70%, transparent);
+  border: 1px solid var(--rule-dark);
+  color: var(--on-dark);
+  transition: all 0.3s var(--ease);
+}
+.viewer-nav:hover { background: var(--accent-lift); color: var(--ink); border-color: var(--accent-lift); }
+.viewer-nav svg { width: 17px; height: 17px; }
+.viewer-prev { left: 0.85rem; }
+.viewer-next { right: 0.85rem; }
+.viewer-nav[hidden] { display: none; }
+
+.viewer-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 0.7rem 1.15rem 0.9rem;
   border-top: 1px solid var(--rule-dark);
+}
+.viewer-note {
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.08em;
   color: var(--on-dark-60);
 }
+.viewer-count {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: var(--on-dark-60);
+}
+.viewer-count:empty { display: none; }
 
 /* ---------- 17. Preloader ----------
    A count from 0 to 100 that travels left to right across the foot of the
@@ -1749,7 +1857,10 @@ html.preloading, html.preloading body { overflow: hidden; }
   border-radius: 50%;
   background: var(--ink);
   pointer-events: none;
-  z-index: 500;              /* above the preloader (400) and lightbox */
+  z-index: 500;              /* above the preloader (400); a native <dialog>
+                                 opened with showModal() renders in the
+                                 browser's top layer regardless of z-index, so
+                                 this cannot reach above the lightbox/viewer */
   opacity: 0;
   will-change: transform;
   transition: width 0.28s var(--ease), height 0.28s var(--ease),
@@ -1773,6 +1884,19 @@ html.preloading, html.preloading body { overflow: hidden; }
 .has-cursor textarea,
 .has-cursor select,
 .has-cursor [contenteditable="true"] { cursor: auto; }
+
+/* While the lightbox or document viewer is open, the dot is stuck behind the
+   dialog's top layer and cannot be seen (that layer paints above the whole
+   page regardless of z-index), so the native cursor would otherwise vanish
+   entirely. Both dialogs already toggle .lb-open on <html> for scroll
+   locking; reuse it here to give the real cursor back for as long as either
+   is open. */
+html.has-cursor.lb-open,
+html.has-cursor.lb-open a,
+html.has-cursor.lb-open button,
+html.has-cursor.lb-open .btn,
+html.has-cursor.lb-open summary,
+html.has-cursor.lb-open [role="button"] { cursor: auto; }
 
 /* ---------- 18. Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {

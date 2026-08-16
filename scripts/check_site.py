@@ -48,6 +48,10 @@ EXPECTED = [
 # References the page is designed to survive without.
 OPTIONAL_REFS: set[str] = set()
 
+# Icon symbols swapped in only via JS (main.js sets the <use> href at
+# runtime), so a static scan of the markup never finds a matching <use>.
+DYNAMIC_ONLY_SYMBOLS = {"ic-compress"}
+
 # Placeholder domains that must never ship.
 PLACEHOLDER_URLS = [
     "your-domain.com",
@@ -149,7 +153,7 @@ def check_svg_use(rep: Report, markup: str) -> None:
         if ref not in symbols:
             rep.error(f'<use href="#{ref}"> has no matching <symbol>')
     used = set(re.findall(r'<use\s+href\s*=\s*"#([^"]+)"', markup))
-    for unused in sorted(symbols - used):
+    for unused in sorted(symbols - used - DYNAMIC_ONLY_SYMBOLS):
         rep.note(f"Icon symbol #{unused} is defined but never used")
 
 
@@ -192,8 +196,8 @@ def check_images(rep: Report, markup: str) -> None:
         if 'alt="' not in tag and "alt='" not in tag:
             rep.error(f"<img> has no alt attribute: {label}")
         if "width=" not in tag or "height=" not in tag:
-            # dynamic images (the lightbox stage) are sized by CSS
-            if 'id="lbImg"' not in tag:
+            # dynamic images (the lightbox and document-viewer stages) are sized by CSS
+            if 'id="lbImg"' not in tag and 'id="viewerPageImg"' not in tag:
                 rep.error(f"<img> is missing width/height: {label}")
 
 
