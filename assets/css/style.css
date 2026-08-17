@@ -1576,16 +1576,18 @@ html.no-gsap .hero-title .line { overflow: visible; }
 }
 .viewer::backdrop { background: rgba(10, 11, 13, 0.82); }
 
-/* The dialog itself is the fullscreen element (main.js requests it), so the
-   fixed 92vh/900px cap gives way to the full viewport while it is active. */
-.viewer:fullscreen {
+/* CSS-only maximize (main.js toggles this class rather than using the real
+   Fullscreen API, which is unreliable on an element that is simultaneously
+   an open showModal() dialog): the fixed 92vh/900px cap gives way to the
+   full viewport while active. */
+.viewer.is-maximized {
   width: 100vw;
   max-width: none;
   height: 100vh;
   max-height: none;
   border-radius: 0;
 }
-.viewer:fullscreen .viewer-shell { height: 100%; }
+.viewer.is-maximized .viewer-shell { height: 100%; }
 
 /* A definite height here, not max-height. The stage below grows into the space
    left over, and flex needs something real to divide up: with only a

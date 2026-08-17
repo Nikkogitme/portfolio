@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20260817">
+<link rel="stylesheet" href="assets/css/style.css?v=20260817b">
 
 <!-- Conservative Person data. Deliberately omits worksFor, jobTitle, sameAs and
      any URL, because none of those can be verified from the source material. -->
@@ -1103,9 +1103,12 @@
         <p class="meta"><span class="label label--accent" id="viewerMeta"></span></p>
       </div>
       <div class="viewer-head-actions">
-        <!-- Hidden by default; main.js only reveals it once it has confirmed
-             the Fullscreen API is actually available, per the site's rule of
-             leaving a trigger off rather than offering one that does nothing. -->
+        <!-- A CSS-only maximize (main.js toggles .is-maximized on the
+             dialog), not the real Fullscreen API: requestFullscreen() on an
+             element that is simultaneously an open showModal() dialog is
+             unreliable across real browsers. Hidden until main.js runs, in
+             keeping with content being visible by default only once JS can
+             actually drive it. -->
         <button class="viewer-fullscreen" id="viewerFullscreen" type="button"
                 aria-label="Enter fullscreen" aria-pressed="false" hidden>
           <svg aria-hidden="true"><use href="#ic-expand"/></svg>
@@ -1203,6 +1206,6 @@
 <!-- Physics solver for the Toolkit pills. Optional like the rest: if it fails
      to load, main.js leaves the pills in their normal layout. -->
 <script defer src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script defer src="assets/js/main.js?v=20260817"></script>
+<script defer src="assets/js/main.js?v=20260817b"></script>
 </body>
 </html>

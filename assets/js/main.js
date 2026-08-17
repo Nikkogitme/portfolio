@@ -776,10 +776,18 @@
     if (pages) {
       pages.addEventListener("pointerdown", function (e) {
         if (!pages.classList.contains("is-zoomed")) return;
+        /* A real pointerdown on the nav/zoom buttons bubbles up to this
+           listener same as one on the image does. Without this guard,
+           engaging pan here would call setPointerCapture on .viewer-pages
+           and steal the gesture from the button mid-click, silently eating
+           every zoom-in press after the first (a synthetic .click() in
+           testing skips the pointer-event pipeline entirely and never hits
+           this, which is why it did not show up until a real click did). */
+        if (e.target.closest(".viewer-zoom, .viewer-nav")) return;
         panning = true;
         panStartX = e.clientX; panStartY = e.clientY;
         panScrollX = pages.scrollLeft; panScrollY = pages.scrollTop;
-        pages.setPointerCapture(e.pointerId);
+        try { pages.setPointerCapture(e.pointerId); } catch (err) { /* pointer already gone; pointerup/cancel below still end the pan */ }
       });
       pages.addEventListener("pointermove", function (e) {
         if (!panning) return;
@@ -791,25 +799,21 @@
       pages.addEventListener("pointercancel", endPan);
     }
 
-    /* Fullscreen: feature-detected, so a browser without the API (older
-       Safari) simply never sees the button, per the site's rule of leaving a
-       trigger off rather than offering one that does nothing. */
-    var fsUse = fsBtn ? fsBtn.querySelector("use") : null;
-    var fsSupported = !!(dlg.requestFullscreen && document.exitFullscreen);
-    if (fsBtn && fsSupported) {
+    /* "Fullscreen" is a CSS-only maximize (the dialog grows to fill the
+       viewport), not the real Fullscreen API. dialog.requestFullscreen() on
+       an element that is simultaneously an open showModal() dialog is a
+       known-fragile combination in real browsers: it can silently do nothing
+       on a genuine click even though nothing throws, which is exactly what
+       happened here. The CSS toggle has no such failure mode and needs no
+       feature detection, so the button is just always shown. */
+    if (fsBtn) {
+      var fsUse = fsBtn.querySelector("use");
       fsBtn.hidden = false;
       fsBtn.addEventListener("click", function () {
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-        } else {
-          dlg.requestFullscreen().catch(function () { /* denied or unsupported mid-use: stay windowed */ });
-        }
-      });
-      document.addEventListener("fullscreenchange", function () {
-        var isFs = document.fullscreenElement === dlg;
-        fsBtn.setAttribute("aria-pressed", String(isFs));
-        fsBtn.setAttribute("aria-label", isFs ? "Exit fullscreen" : "Enter fullscreen");
-        if (fsUse) fsUse.setAttribute("href", isFs ? "#ic-compress" : "#ic-expand");
+        var isMax = dlg.classList.toggle("is-maximized");
+        fsBtn.setAttribute("aria-pressed", String(isMax));
+        fsBtn.setAttribute("aria-label", isMax ? "Exit fullscreen" : "Enter fullscreen");
+        if (fsUse) fsUse.setAttribute("href", isMax ? "#ic-compress" : "#ic-expand");
       });
     }
 
@@ -842,7 +846,13 @@
       if (countEl) countEl.textContent = "";
       pageTotal = 0;
       zoomReset();
-      if (document.fullscreenElement === dlg) document.exitFullscreen();
+      dlg.classList.remove("is-maximized");
+      if (fsBtn) {
+        fsBtn.setAttribute("aria-pressed", "false");
+        fsBtn.setAttribute("aria-label", "Enter fullscreen");
+        var fsUseReset = fsBtn.querySelector("use");
+        if (fsUseReset) fsUseReset.setAttribute("href", "#ic-expand");
+      }
       root.classList.remove("lb-open");
       if (lenis) lenis.start();
       if (opener) opener.focus();
