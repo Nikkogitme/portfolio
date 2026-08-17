@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20260817f">
+<link rel="stylesheet" href="assets/css/style.css?v=20260817g">
 
 <!-- Conservative Person data. Deliberately omits worksFor, jobTitle, sameAs and
      any URL, because none of those can be verified from the source material. -->
@@ -648,6 +648,7 @@
                  URL, and that option is not reliably available for video. -->
             <button class="case-cta" type="button"
                     data-viewer-src="assets/video/dt-insite-hub.mp4"
+                    data-viewer-poster="assets/img/thumbs/dt-insite.webp"
                     data-viewer-title="DT Insite Hub"
                     data-viewer-meta="Sample walkthrough &middot; 1:53"
                     data-viewer-kind="video">
@@ -947,6 +948,7 @@
         </dl>
         <button class="case-cta" type="button"
                 data-viewer-src="assets/video/26.08.17_BatchEE_Demo.mp4"
+                data-viewer-poster="assets/img/thumbs/batchee-demo.webp"
                 data-viewer-title="BatchEE"
                 data-viewer-meta="Demo walkthrough &middot; 2:44"
                 data-viewer-kind="video">
@@ -1166,8 +1168,7 @@
            routes; they do not make the file unobtainable. -->
       <video id="viewerVideo" controls preload="none" playsinline
              controlslist="nodownload noplaybackrate noremoteplayback"
-             disablepictureinpicture
-             poster="assets/img/thumbs/dt-insite.webp" hidden></video>
+             disablepictureinpicture hidden></video>
 
       <!-- Documents render as a single page image rather than through an
            <iframe>. Chrome, Edge and Firefox all let the user set PDFs to
@@ -1256,6 +1257,6 @@
 <!-- Physics solver for the Toolkit pills. Optional like the rest: if it fails
      to load, main.js leaves the pills in their normal layout. -->
 <script defer src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script defer src="assets/js/main.js?v=20260817f"></script>
+<script defer src="assets/js/main.js?v=20260817g"></script>
 </body>
 </html>

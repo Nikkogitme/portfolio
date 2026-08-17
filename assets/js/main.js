@@ -737,6 +737,9 @@
           if (pagePrev) pagePrev.hidden = true;
           if (pageNext) pageNext.hidden = true;
           video.hidden = false;
+          var poster = host.getAttribute("data-viewer-poster");
+          if (poster) { video.setAttribute("poster", poster); }
+          else { video.removeAttribute("poster"); }
           video.setAttribute("src", src);
         } else {
           if (pages) pages.hidden = true;
