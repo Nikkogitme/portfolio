@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20260817c">
+<link rel="stylesheet" href="assets/css/style.css?v=20260817d">
 
 <!-- Conservative Person data. Deliberately omits worksFor, jobTitle, sameAs and
      any URL, because none of those can be verified from the source material. -->
@@ -1125,8 +1125,15 @@
            shows a download prompt instead of the document. Images always
            render. One page at a time, paged like the project lightbox
            below, rather than a long scroll: main.js swaps the src on
-           Prev/Next and the arrow keys. -->
-      <div class="viewer-pages" id="viewerPages" hidden>
+           Prev/Next and the arrow keys.
+
+           data-lenis-prevent: this becomes a real scroller again once zoomed
+           (overflow: auto for panning), and Lenis binds touch handling on
+           the whole document and keeps swallowing it inside nested
+           scrollers even after stop(), so on iOS this panel could not be
+           panned by touch while a mouse drag worked fine on desktop. This
+           tells Lenis to leave events here alone. -->
+      <div class="viewer-pages" id="viewerPages" data-lenis-prevent hidden>
         <img id="viewerPageImg" alt="">
       </div>
       <!-- Nav and zoom controls are siblings of .viewer-pages, not children of
@@ -1199,6 +1206,6 @@
 <!-- Physics solver for the Toolkit pills. Optional like the rest: if it fails
      to load, main.js leaves the pills in their normal layout. -->
 <script defer src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script defer src="assets/js/main.js?v=20260817c"></script>
+<script defer src="assets/js/main.js?v=20260817d"></script>
 </body>
 </html>

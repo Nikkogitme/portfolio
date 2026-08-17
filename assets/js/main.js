@@ -773,13 +773,19 @@
       pageImg.addEventListener("dblclick", function () { setZoom(zoom > 1 ? 1 : 2); });
     }
 
-    /* Drag to pan once zoomed. Pointer capture keeps the drag going even if
-       the cursor leaves the image mid-gesture. The nav/zoom buttons are
-       siblings of .viewer-pages, not descendants of it (see the HTML), so a
-       pointerdown on them never reaches this listener and needs no guard. */
+    /* Drag to pan once zoomed, mouse only: .viewer-pages is overflow:auto
+       when zoomed, so touch already pans it natively, with momentum and
+       bounce a hand-rolled version would not have. Engaging this for touch
+       too would call setPointerCapture on every touch drag and fight that
+       native scrolling instead of adding to it. Pointer capture keeps the
+       drag going even if the cursor leaves the image mid-gesture. The
+       nav/zoom buttons are siblings of .viewer-pages, not descendants of it
+       (see the HTML), so a pointerdown on them never reaches this listener
+       and needs no guard. */
     var panning = false, panStartX = 0, panStartY = 0, panScrollX = 0, panScrollY = 0;
     if (pages) {
       pages.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "touch") return;
         if (!pages.classList.contains("is-zoomed")) return;
         panning = true;
         panStartX = e.clientX; panStartY = e.clientY;
