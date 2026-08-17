@@ -379,6 +379,11 @@ em, .em {
 .section + .section { border-top: 1px solid var(--rule); }
 .hero { scroll-margin-top: 0; }
 
+/* A section holding a single, short feature (not a full grid of content)
+   gets a lighter vertical rhythm than the standard --section padding, so it
+   doesn't read as dead space between two content-heavy sections. */
+.section--compact { padding-block: clamp(3rem, 6vw, 5rem); }
+
 .section-head {
   display: flex;
   align-items: baseline;
