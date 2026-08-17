@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20260817b">
+<link rel="stylesheet" href="assets/css/style.css?v=20260817c">
 
 <!-- Conservative Person data. Deliberately omits worksFor, jobTitle, sameAs and
      any URL, because none of those can be verified from the source material. -->
@@ -100,7 +100,6 @@
   <symbol id="ic-chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
   <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
   <symbol id="ic-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3 14 10"/><path d="M3 21l7-7"/></symbol>
-  <symbol id="ic-compress" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10 21 3"/><path d="M3 21l7-7"/></symbol>
   <symbol id="ic-zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
   <symbol id="ic-zoom-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
   <symbol id="ic-linkedin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></symbol>
@@ -1102,21 +1101,9 @@
         <h2 id="viewerTitle"></h2>
         <p class="meta"><span class="label label--accent" id="viewerMeta"></span></p>
       </div>
-      <div class="viewer-head-actions">
-        <!-- A CSS-only maximize (main.js toggles .is-maximized on the
-             dialog), not the real Fullscreen API: requestFullscreen() on an
-             element that is simultaneously an open showModal() dialog is
-             unreliable across real browsers. Hidden until main.js runs, in
-             keeping with content being visible by default only once JS can
-             actually drive it. -->
-        <button class="viewer-fullscreen" id="viewerFullscreen" type="button"
-                aria-label="Enter fullscreen" aria-pressed="false" hidden>
-          <svg aria-hidden="true"><use href="#ic-expand"/></svg>
-        </button>
-        <button class="lb-close" id="viewerClose" type="button" aria-label="Close">
-          <svg aria-hidden="true"><use href="#ic-x"/></svg>
-        </button>
-      </div>
+      <button class="lb-close" id="viewerClose" type="button" aria-label="Close">
+        <svg aria-hidden="true"><use href="#ic-x"/></svg>
+      </button>
     </div>
     <div class="viewer-stage">
       <!-- No sandbox in the markup: main.js applies one only for cross-origin
@@ -1140,24 +1127,30 @@
            below, rather than a long scroll: main.js swaps the src on
            Prev/Next and the arrow keys. -->
       <div class="viewer-pages" id="viewerPages" hidden>
-        <button class="viewer-nav viewer-prev" id="viewerPrev" type="button" aria-label="Previous page">
-          <svg aria-hidden="true"><use href="#ic-chev-left"/></svg>
-        </button>
         <img id="viewerPageImg" alt="">
-        <button class="viewer-nav viewer-next" id="viewerNext" type="button" aria-label="Next page">
-          <svg aria-hidden="true"><use href="#ic-chev-right"/></svg>
+      </div>
+      <!-- Nav and zoom controls are siblings of .viewer-pages, not children of
+           it: .viewer-pages becomes the scrollable pan surface once zoomed,
+           and an absolutely positioned child of a scrolling container pans
+           away with the content instead of staying put in the corner. Being
+           positioned against .viewer-stage (which never scrolls) instead
+           keeps them pinned to the visible frame regardless of zoom or pan. -->
+      <button class="viewer-nav viewer-prev" id="viewerPrev" type="button" aria-label="Previous page" hidden>
+        <svg aria-hidden="true"><use href="#ic-chev-left"/></svg>
+      </button>
+      <button class="viewer-nav viewer-next" id="viewerNext" type="button" aria-label="Next page" hidden>
+        <svg aria-hidden="true"><use href="#ic-chev-right"/></svg>
+      </button>
+      <!-- Doc-only: main.js shows this alongside .viewer-pages, hidden for
+           video/iframe content where zooming makes no sense. -->
+      <div class="viewer-zoom" id="viewerZoom" hidden>
+        <button class="viewer-zbtn" id="viewerZoomOut" type="button" aria-label="Zoom out">
+          <svg aria-hidden="true"><use href="#ic-zoom-out"/></svg>
         </button>
-        <!-- Doc-only: shown alongside .viewer-pages, hidden for video/iframe
-             content where zooming makes no sense. -->
-        <div class="viewer-zoom" id="viewerZoom" hidden>
-          <button class="viewer-zbtn" id="viewerZoomOut" type="button" aria-label="Zoom out">
-            <svg aria-hidden="true"><use href="#ic-zoom-out"/></svg>
-          </button>
-          <span class="viewer-zlevel" id="viewerZoomLevel" role="status" aria-live="polite">100%</span>
-          <button class="viewer-zbtn" id="viewerZoomIn" type="button" aria-label="Zoom in">
-            <svg aria-hidden="true"><use href="#ic-zoom-in"/></svg>
-          </button>
-        </div>
+        <span class="viewer-zlevel" id="viewerZoomLevel" role="status" aria-live="polite">100%</span>
+        <button class="viewer-zbtn" id="viewerZoomIn" type="button" aria-label="Zoom in">
+          <svg aria-hidden="true"><use href="#ic-zoom-in"/></svg>
+        </button>
       </div>
     </div>
     <div class="viewer-foot">
@@ -1206,6 +1199,6 @@
 <!-- Physics solver for the Toolkit pills. Optional like the rest: if it fails
      to load, main.js leaves the pills in their normal layout. -->
 <script defer src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script defer src="assets/js/main.js?v=20260817b"></script>
+<script defer src="assets/js/main.js?v=20260817c"></script>
 </body>
 </html>

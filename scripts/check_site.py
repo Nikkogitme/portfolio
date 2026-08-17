@@ -50,7 +50,7 @@ OPTIONAL_REFS: set[str] = set()
 
 # Icon symbols swapped in only via JS (main.js sets the <use> href at
 # runtime), so a static scan of the markup never finds a matching <use>.
-DYNAMIC_ONLY_SYMBOLS = {"ic-compress"}
+DYNAMIC_ONLY_SYMBOLS: set[str] = set()
 
 # Placeholder domains that must never ship.
 PLACEHOLDER_URLS = [

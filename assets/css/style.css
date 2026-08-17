@@ -1576,19 +1576,6 @@ html.no-gsap .hero-title .line { overflow: visible; }
 }
 .viewer::backdrop { background: rgba(10, 11, 13, 0.82); }
 
-/* CSS-only maximize (main.js toggles this class rather than using the real
-   Fullscreen API, which is unreliable on an element that is simultaneously
-   an open showModal() dialog): the fixed 92vh/900px cap gives way to the
-   full viewport while active. */
-.viewer.is-maximized {
-  width: 100vw;
-  max-width: none;
-  height: 100vh;
-  max-height: none;
-  border-radius: 0;
-}
-.viewer.is-maximized .viewer-shell { height: 100%; }
-
 /* A definite height here, not max-height. The stage below grows into the space
    left over, and flex needs something real to divide up: with only a
    max-height the stage collapses to nothing. */
@@ -1610,27 +1597,13 @@ html.no-gsap .hero-title .line { overflow: visible; }
   font-weight: var(--w-head);
   letter-spacing: var(--track-head);
 }
-.viewer-head-actions { display: flex; align-items: center; gap: 0.5rem; flex: none; }
-
-/* Dark-band twin of .lb-close, same circle, restyled for the viewer background. */
-.viewer-fullscreen {
-  flex: none;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-content: center;
-  border: 1px solid var(--rule-dark);
-  border-radius: 50%;
-  color: var(--on-dark);
-  transition: all 0.3s var(--ease);
-}
-.viewer-fullscreen:hover { background: var(--accent-lift); color: var(--ink); border-color: var(--accent-lift); }
-.viewer-fullscreen svg { width: 16px; height: 16px; }
-.viewer-fullscreen[hidden] { display: none; }
-
 /* min-height: 0 lets this actually shrink inside the column; without it the
-   iframe's default intrinsic size sets a floor and pushes the note off. */
+   iframe's default intrinsic size sets a floor and pushes the note off.
+   position: relative makes this the anchor for the nav/zoom controls below,
+   which must stay pinned to the visible frame rather than the scrollable
+   .viewer-pages surface underneath them. */
 .viewer-stage {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   background: #0e1013;
@@ -1692,7 +1665,9 @@ html.no-gsap .hero-title .line { overflow: visible; }
 }
 
 /* Floating cluster, bottom-right of the page. Doc-only: main.js shows it
-   alongside .viewer-pages and hides it for video/iframe content. */
+   alongside .viewer-pages and hides it for video/iframe content. A sibling
+   of .viewer-pages rather than a child, so it stays pinned to the visible
+   frame instead of panning away with the zoomed image underneath it. */
 .viewer-zoom {
   position: absolute;
   right: 0.85rem;
@@ -1729,9 +1704,13 @@ html.no-gsap .hero-title .line { overflow: visible; }
 }
 
 /* Dark-band twin of .lb-nav: same shape and placement, restyled for the
-   viewer's near-black background instead of the light lightbox. */
+   viewer's near-black background instead of the light lightbox. Positioned
+   against .viewer-stage (a sibling of .viewer-pages, not a child of it), so
+   it stays pinned to the visible frame instead of panning away with the
+   zoomed image underneath. */
 .viewer-nav {
   position: absolute;
+  z-index: 2;
   top: 50%;
   translate: 0 -50%;
   width: 44px;

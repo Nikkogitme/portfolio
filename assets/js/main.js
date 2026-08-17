@@ -611,7 +611,6 @@
     var noteEl = document.getElementById("viewerNote");
     var countEl = document.getElementById("viewerCount");
     var closeBtn = document.getElementById("viewerClose");
-    var fsBtn = document.getElementById("viewerFullscreen");
     var zoomBox = document.getElementById("viewerZoom");
     var zoomInBtn = document.getElementById("viewerZoomIn");
     var zoomOutBtn = document.getElementById("viewerZoomOut");
@@ -735,11 +734,15 @@
           frame.removeAttribute("src");
           if (pages) pages.hidden = true;
           if (zoomBox) zoomBox.hidden = true;
+          if (pagePrev) pagePrev.hidden = true;
+          if (pageNext) pageNext.hidden = true;
           video.hidden = false;
           video.setAttribute("src", src);
         } else {
           if (pages) pages.hidden = true;
           if (zoomBox) zoomBox.hidden = true;
+          if (pagePrev) pagePrev.hidden = true;
+          if (pageNext) pageNext.hidden = true;
           video && (video.hidden = true, video.removeAttribute("src"));
           frame.hidden = false;
           frame.setAttribute("title", title);
@@ -771,19 +774,13 @@
     }
 
     /* Drag to pan once zoomed. Pointer capture keeps the drag going even if
-       the cursor leaves the image mid-gesture. */
+       the cursor leaves the image mid-gesture. The nav/zoom buttons are
+       siblings of .viewer-pages, not descendants of it (see the HTML), so a
+       pointerdown on them never reaches this listener and needs no guard. */
     var panning = false, panStartX = 0, panStartY = 0, panScrollX = 0, panScrollY = 0;
     if (pages) {
       pages.addEventListener("pointerdown", function (e) {
         if (!pages.classList.contains("is-zoomed")) return;
-        /* A real pointerdown on the nav/zoom buttons bubbles up to this
-           listener same as one on the image does. Without this guard,
-           engaging pan here would call setPointerCapture on .viewer-pages
-           and steal the gesture from the button mid-click, silently eating
-           every zoom-in press after the first (a synthetic .click() in
-           testing skips the pointer-event pipeline entirely and never hits
-           this, which is why it did not show up until a real click did). */
-        if (e.target.closest(".viewer-zoom, .viewer-nav")) return;
         panning = true;
         panStartX = e.clientX; panStartY = e.clientY;
         panScrollX = pages.scrollLeft; panScrollY = pages.scrollTop;
@@ -797,24 +794,6 @@
       var endPan = function () { panning = false; };
       pages.addEventListener("pointerup", endPan);
       pages.addEventListener("pointercancel", endPan);
-    }
-
-    /* "Fullscreen" is a CSS-only maximize (the dialog grows to fill the
-       viewport), not the real Fullscreen API. dialog.requestFullscreen() on
-       an element that is simultaneously an open showModal() dialog is a
-       known-fragile combination in real browsers: it can silently do nothing
-       on a genuine click even though nothing throws, which is exactly what
-       happened here. The CSS toggle has no such failure mode and needs no
-       feature detection, so the button is just always shown. */
-    if (fsBtn) {
-      var fsUse = fsBtn.querySelector("use");
-      fsBtn.hidden = false;
-      fsBtn.addEventListener("click", function () {
-        var isMax = dlg.classList.toggle("is-maximized");
-        fsBtn.setAttribute("aria-pressed", String(isMax));
-        fsBtn.setAttribute("aria-label", isMax ? "Exit fullscreen" : "Enter fullscreen");
-        if (fsUse) fsUse.setAttribute("href", isMax ? "#ic-compress" : "#ic-expand");
-      });
     }
 
     dlg.addEventListener("keydown", function (e) {
@@ -842,17 +821,12 @@
       }
       if (pages) pages.hidden = true;
       if (zoomBox) zoomBox.hidden = true;
+      if (pagePrev) pagePrev.hidden = true;
+      if (pageNext) pageNext.hidden = true;
       if (pageImg) { pageImg.removeAttribute("src"); pageImg.removeAttribute("alt"); }
       if (countEl) countEl.textContent = "";
       pageTotal = 0;
       zoomReset();
-      dlg.classList.remove("is-maximized");
-      if (fsBtn) {
-        fsBtn.setAttribute("aria-pressed", "false");
-        fsBtn.setAttribute("aria-label", "Enter fullscreen");
-        var fsUseReset = fsBtn.querySelector("use");
-        if (fsUseReset) fsUseReset.setAttribute("href", "#ic-expand");
-      }
       root.classList.remove("lb-open");
       if (lenis) lenis.start();
       if (opener) opener.focus();
