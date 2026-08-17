@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20260817d">
+<link rel="stylesheet" href="assets/css/style.css?v=20260817e">
 
 <!-- Conservative Person data. Deliberately omits worksFor, jobTitle, sameAs and
      any URL, because none of those can be verified from the source material. -->
@@ -132,6 +132,7 @@
     <li><a href="#capabilities">Capabilities</a></li>
     <li><a href="#experience">Experience</a></li>
     <li><a href="#work">Work</a></li>
+    <li><a href="#build">Build</a></li>
     <li><a href="#toolkit">Toolkit</a></li>
     <li><a href="#education">Education</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -910,11 +911,57 @@
     </div>
   </section>
 
+  <!-- ============ 05 independent build ============ -->
+  <section class="section" id="build">
+    <div class="shell">
+      <div class="section-head">
+        <span class="num">05</span>
+        <h2>Independent build</h2>
+        <span class="flex-rule" aria-hidden="true"></span>
+      </div>
+
+      <div class="cases-head">
+        <h3>BatchEE: Revit batch export add-in</h3>
+        <p>Built solo, outside any client engagement: proof of what I can ship, not just manage.</p>
+      </div>
+
+      <article class="case case--feature" data-reveal>
+        <p class="label label--accent">Personal build &nbsp;&middot;&nbsp; Not a client deliverable</p>
+        <h4>BatchEE</h4>
+        <dl class="case-dl">
+          <dt>Problem</dt>
+          <dd>Practices without an enterprise export tool are stuck between Revit&rsquo;s native export
+              dialog (one format at a time, no templating), commercial per-seat plugins, or Dynamo
+              scripts that rarely outlive the person who wrote them.</dd>
+          <dt>Build</dt>
+          <dd>A native Revit add-in built end to end: batch PDF and DWG export through Revit&rsquo;s own
+              export APIs with no virtual printer driver dependency, a token-based file and folder
+              naming engine with a live filename preview, and an unattended Windows-scheduled export
+              path that runs through the same export engine as the interactive UI.</dd>
+          <dt>Stack</dt>
+          <dd>C#, WPF-UI (Fluent), multi-targeted across Revit 2025 to 2027 (net8.0-windows and
+              net10.0-windows), packaged as a signed MSI installer.</dd>
+          <dt>Status</dt>
+          <dd>Feature-complete and live-verified on Revit 2027: export, naming engine, scheduler and
+              installer all built and tested end to end.</dd>
+        </dl>
+        <button class="case-cta" type="button"
+                data-viewer-src="assets/video/26.08.17_BatchEE_Demo.mp4"
+                data-viewer-title="BatchEE"
+                data-viewer-meta="Demo walkthrough &middot; 2:44"
+                data-viewer-kind="video">
+          <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+          Watch the demo
+        </button>
+      </article>
+    </div>
+  </section>
+
   <!-- ============ 06 toolkit ============ -->
   <section class="section band-dark" id="toolkit">
     <div class="shell">
       <div class="section-head">
-        <span class="num">05</span>
+        <span class="num">06</span>
         <h2>Toolkit</h2>
         <span class="flex-rule" aria-hidden="true"></span>
       </div>
@@ -944,6 +991,9 @@
             <li class="tool-pill">pyRevit</li>
             <li class="tool-pill">RhinoInside.Revit</li>
             <li class="tool-pill">GitHub</li>
+            <li class="tool-pill">C#</li>
+            <li class="tool-pill">.NET</li>
+            <li class="tool-pill">WPF-UI</li>
           </ul>
         </section>
 
@@ -979,7 +1029,7 @@
   <section class="section" id="education">
     <div class="shell">
       <div class="section-head">
-        <span class="num">06</span>
+        <span class="num">07</span>
         <h2>Education and certification</h2>
         <span class="flex-rule" aria-hidden="true"></span>
       </div>
@@ -1033,7 +1083,7 @@
   <section class="section contact" id="contact">
     <div class="shell">
       <div class="section-head">
-        <span class="num">07</span>
+        <span class="num">08</span>
         <h2>Contact</h2>
         <span class="flex-rule" aria-hidden="true"></span>
       </div>
@@ -1206,6 +1256,6 @@
 <!-- Physics solver for the Toolkit pills. Optional like the rest: if it fails
      to load, main.js leaves the pills in their normal layout. -->
 <script defer src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script defer src="assets/js/main.js?v=20260817d"></script>
+<script defer src="assets/js/main.js?v=20260817e"></script>
 </body>
 </html>

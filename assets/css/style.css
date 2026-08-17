@@ -1015,6 +1015,8 @@ em, .em {
   color: var(--ink-70);
 }
 
+.case--feature { max-width: 640px; }
+
 /* ---------- 12. Toolkit (dark band) ---------- */
 .band-dark {
   background: var(--ink-bg);
