@@ -575,6 +575,77 @@
   })();
 
   /* ---------------------------------------------------------------------
+     Selected work accordion
+
+     Same mechanism as the Experience accordion above, applied to case
+     cards: every one starts collapsed to just its heading, so the section
+     stays short regardless of how many cases it holds. Panels are visible
+     in CSS so the content is readable without JavaScript.
+     --------------------------------------------------------------------- */
+  (function caseAccordion() {
+    var supportsInert = "inert" in HTMLElement.prototype;
+
+    $$(".case--collapsible").forEach(function (item) {
+      var head = $(".case-head", item);
+      var panel = $(".case-panel", item);
+      var inner = $(".case-panel-inner", item);
+      if (!head || !panel || !inner) return;
+
+      var open = false;
+
+      function setInert(isOpen) {
+        if (supportsInert) panel.inert = !isOpen;
+        else if (isOpen) panel.removeAttribute("aria-hidden");
+        else panel.setAttribute("aria-hidden", "true");
+      }
+
+      function applyState(isOpen) {
+        item.classList.toggle("is-open", isOpen);
+        head.setAttribute("aria-expanded", String(isOpen));
+        setInert(isOpen);
+      }
+
+      panel.style.height = "0px";
+      applyState(false);
+
+      head.addEventListener("click", function () {
+        open = !open;
+        applyState(open);
+
+        if (!animate) {
+          panel.style.height = open ? "auto" : "0px";
+          if (hasST) ScrollTrigger.refresh();
+          return;
+        }
+
+        gsap.killTweensOf(panel);
+        if (open) {
+          gsap.fromTo(panel,
+            { height: 0 },
+            {
+              height: inner.offsetHeight,
+              duration: 0.5, ease: "power3.inOut",
+              onComplete: function () {
+                panel.style.height = "auto";
+                if (hasST) ScrollTrigger.refresh();
+              }
+            });
+          gsap.fromTo(inner,
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.45, ease: "power2.out", delay: 0.1 });
+        } else {
+          gsap.fromTo(panel,
+            { height: panel.offsetHeight },
+            {
+              height: 0, duration: 0.4, ease: "power3.inOut",
+              onComplete: function () { if (hasST) ScrollTrigger.refresh(); }
+            });
+        }
+      });
+    });
+  })();
+
+  /* ---------------------------------------------------------------------
      Sample viewer
 
      One dialog shared by every "see a sample" trigger. The iframe src is set

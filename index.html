@@ -36,7 +36,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="assets/css/style.css?v=20260817g">
+<link rel="stylesheet" href="assets/css/style.css?v=20260818b">
 
 <!-- Conservative Person data. Deliberately omits worksFor, jobTitle, sameAs and
      any URL, because none of those can be verified from the source material. -->
@@ -625,136 +625,272 @@
 
         <div class="cases-grid">
 
-          <article class="case" data-reveal>
-            <p class="label label--accent">01 &nbsp;·&nbsp; Knowledge</p>
-            <h4>DT Insite Hub</h4>
-            <dl class="case-dl">
-              <dt>Problem</dt>
-              <dd>Design Technology information was fragmented across multiple locations, so the
-                  answer depended on who you asked.</dd>
-              <dt>Control</dt>
-              <dd>A central SharePoint hub holding standards, procedures, approved tools, design
-                  guides and regulations, workflows, training and support behind one navigation.</dd>
-              <dt>Artefact</dt>
-              <dd>Curated libraries including a categorised typical drafting details set, each
-                  detail carrying drawing number, category, scale and revision.</dd>
-              <dt>Reach</dt>
-              <dd>A governed source of truth for approximately 270 staff, piloted in Brisbane
-                  before national rollout.</dd>
-            </dl>
-            <!-- Self-hosted rather than embedded from OneDrive: onedrive.live.com
-                 sends frame-ancestors 'self', so a share link of any form is
-                 refused inside our frame. Only Share -> Embed mints a framable
-                 URL, and that option is not reliably available for video. -->
-            <button class="case-cta" type="button"
-                    data-viewer-src="assets/video/dt-insite-hub.mp4"
-                    data-viewer-poster="assets/img/thumbs/dt-insite.webp"
-                    data-viewer-title="DT Insite Hub"
-                    data-viewer-meta="Sample walkthrough &middot; 1:53"
-                    data-viewer-kind="video">
-              <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
-              See a sample in action
-            </button>
+          <article class="case case--collapsible" data-reveal>
+            <h4 class="case-title">
+              <button class="case-head" type="button" id="case-1-trigger"
+                      aria-expanded="false" aria-controls="case-1-panel">
+                <span class="case-head-text">
+                  <span class="label label--accent">01 &nbsp;·&nbsp; Knowledge</span>
+                  <span class="case-title-text">DT Insite Hub</span>
+                </span>
+                <span class="job-toggle" aria-hidden="true"><svg><use href="#ic-chev-down"/></svg></span>
+              </button>
+            </h4>
+            <div class="case-panel" id="case-1-panel" role="region" aria-labelledby="case-1-trigger">
+              <div class="case-panel-inner">
+                <dl class="case-dl">
+                  <dt>Problem</dt>
+                  <dd>Design Technology information was fragmented across multiple locations, so the
+                      answer depended on who you asked.</dd>
+                  <dt>Control</dt>
+                  <dd>A central SharePoint hub holding standards, procedures, approved tools, design
+                      guides and regulations, workflows, training and support behind one navigation.</dd>
+                  <dt>Artefact</dt>
+                  <dd>Curated libraries including a categorised typical drafting details set, each
+                      detail carrying drawing number, category, scale and revision.</dd>
+                  <dt>Reach</dt>
+                  <dd>A governed source of truth for approximately 270 staff, piloted in Brisbane
+                      before national rollout.</dd>
+                </dl>
+                <!-- Self-hosted rather than embedded from OneDrive: onedrive.live.com
+                     sends frame-ancestors 'self', so a share link of any form is
+                     refused inside our frame. Only Share -> Embed mints a framable
+                     URL, and that option is not reliably available for video. -->
+                <button class="case-cta" type="button"
+                        data-viewer-src="assets/video/dt-insite-hub.mp4"
+                        data-viewer-poster="assets/img/thumbs/dt-insite.webp"
+                        data-viewer-title="DT Insite Hub"
+                        data-viewer-meta="Sample walkthrough &middot; 1:53"
+                        data-viewer-kind="video">
+                  <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+                  See a sample in action
+                </button>
+              </div>
+            </div>
           </article>
 
-          <article class="case" data-reveal>
-            <p class="label label--accent">02 &nbsp;·&nbsp; Operating model</p>
-            <h4>National BIM operating model</h4>
-            <dl class="case-dl">
-              <dt>Problem</dt>
-              <dd>BIM support had been uneven across the Sydney, Melbourne and Brisbane studios, and
-                  roles, titles and reporting lines had not been aligned nationally or reviewed in
-                  years.</dd>
-              <dt>Control</dt>
-              <dd>Restructured the function into a coordinated national support model with clearer
-                  ownership and cross-studio resourcing, and led a review of team roles and titles
-                  to set consistent descriptors, role bands and career progression aligned to
-                  industry standards.</dd>
-              <dt>Artefact</dt>
-              <dd>A national role framework with defined bands and career pathways that gives project
-                  teams a clear read on BIM team skills and competency, plus a resourcing model
-                  consistent across three studios.</dd>
-              <dt>Reach</dt>
-              <dd>Approximately 270 staff supported; 14 BIM specialists functionally led.</dd>
-            </dl>
+          <article class="case case--collapsible" data-reveal>
+            <h4 class="case-title">
+              <button class="case-head" type="button" id="case-2-trigger"
+                      aria-expanded="false" aria-controls="case-2-panel">
+                <span class="case-head-text">
+                  <span class="label label--accent">02 &nbsp;·&nbsp; Operating model</span>
+                  <span class="case-title-text">National BIM operating model</span>
+                </span>
+                <span class="job-toggle" aria-hidden="true"><svg><use href="#ic-chev-down"/></svg></span>
+              </button>
+            </h4>
+            <div class="case-panel" id="case-2-panel" role="region" aria-labelledby="case-2-trigger">
+              <div class="case-panel-inner">
+                <dl class="case-dl">
+                  <dt>Problem</dt>
+                  <dd>BIM support had been uneven across the Sydney, Melbourne and Brisbane studios, and
+                      roles, titles and reporting lines had not been aligned nationally or reviewed in
+                      years.</dd>
+                  <dt>Control</dt>
+                  <dd>Restructured the function into a coordinated national support model with clearer
+                      ownership and cross-studio resourcing, and led a review of team roles and titles
+                      to set consistent descriptors, role bands and career progression aligned to
+                      industry standards.</dd>
+                  <dt>Artefact</dt>
+                  <dd>A national role framework with defined bands and career pathways that gives project
+                      teams a clear read on BIM team skills and competency, plus a resourcing model
+                      consistent across three studios.</dd>
+                  <dt>Reach</dt>
+                  <dd>Approximately 270 staff supported; 14 BIM specialists functionally led.</dd>
+                </dl>
+              </div>
+            </div>
           </article>
 
-          <article class="case" data-reveal>
-            <p class="label label--accent">03 &nbsp;·&nbsp; Governance</p>
-            <h4>Phase 20 and Phase 30 BIM gates</h4>
-            <dl class="case-dl">
-              <dt>Problem</dt>
-              <dd>BIM setup decisions were being made late, and Phase 20 models were carried into
-                  Design Development unreviewed, when they are most expensive to change.</dd>
-              <dt>Control</dt>
-              <dd>A lightweight BIM Discovery checklist at Phase 20 Concept Design kickoff: a
-                  quick read on design software, coordinates and survey, modelling intent,
-                  deliverables, consultant inputs, team capability and whether a BIM Execution Plan
-                  is needed, flagging downstream risks early. At Phase 30 Design Development a more
-                  comprehensive BIM Engagement session carries that discovery forward, reviewing
-                  the Phase 20 model&rsquo;s condition, then setting model division, coordinates,
-                  LOD and information requirements, sheet strategy, CDE workflows and
-                  responsibilities, with the BIM Execution Plan updated.</dd>
-              <dt>Artefact</dt>
-              <dd>A completed BIM Discovery Checklist at Phase 20 (Concept Design) or a Project BIM
-                  Brief at Phase 30 (Design Development) for each job, confirming model strategy and
-                  split, deliverables, model health and ACC/CDE workflows. Both gates are embedded
-                  in the internal Project Smart and Audit Smart management system.</dd>
-            </dl>
-            <button class="case-cta" type="button"
-                    data-viewer-pages="9"
-                    data-viewer-base="assets/img/docs/bim-brief-"
-                    data-viewer-title="Project BIM Brief"
-                    data-viewer-meta="Phase 30 sample document &middot; 9 pages"
-                    data-viewer-kind="doc">
-              <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
-              See the sample document
-            </button>
+          <article class="case case--collapsible" data-reveal>
+            <h4 class="case-title">
+              <button class="case-head" type="button" id="case-3-trigger"
+                      aria-expanded="false" aria-controls="case-3-panel">
+                <span class="case-head-text">
+                  <span class="label label--accent">03 &nbsp;·&nbsp; Governance</span>
+                  <span class="case-title-text">Phase 20 and Phase 30 BIM gates</span>
+                </span>
+                <span class="job-toggle" aria-hidden="true"><svg><use href="#ic-chev-down"/></svg></span>
+              </button>
+            </h4>
+            <div class="case-panel" id="case-3-panel" role="region" aria-labelledby="case-3-trigger">
+              <div class="case-panel-inner">
+                <dl class="case-dl">
+                  <dt>Problem</dt>
+                  <dd>BIM setup decisions were being made late, and Phase 20 models were carried into
+                      Design Development unreviewed, when they are most expensive to change.</dd>
+                  <dt>Control</dt>
+                  <dd>A lightweight BIM Discovery checklist at Phase 20 Concept Design kickoff: a
+                      quick read on design software, coordinates and survey, modelling intent,
+                      deliverables, consultant inputs, team capability and whether a BIM Execution Plan
+                      is needed, flagging downstream risks early. At Phase 30 Design Development a more
+                      comprehensive BIM Engagement session carries that discovery forward, reviewing
+                      the Phase 20 model&rsquo;s condition, then setting model division, coordinates,
+                      LOD and information requirements, sheet strategy, CDE workflows and
+                      responsibilities, with the BIM Execution Plan updated.</dd>
+                  <dt>Artefact</dt>
+                  <dd>A completed BIM Discovery Checklist at Phase 20 (Concept Design) or a Project BIM
+                      Brief at Phase 30 (Design Development) for each job, confirming model strategy and
+                      split, deliverables, model health and ACC/CDE workflows. Both gates are embedded
+                      in the internal Project Smart and Audit Smart management system.</dd>
+                </dl>
+                <button class="case-cta" type="button"
+                        data-viewer-pages="9"
+                        data-viewer-base="assets/img/docs/bim-brief-"
+                        data-viewer-title="Project BIM Brief"
+                        data-viewer-meta="Phase 30 sample document &middot; 9 pages"
+                        data-viewer-kind="doc">
+                  <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+                  See the sample document
+                </button>
+              </div>
+            </div>
           </article>
 
-          <article class="case" data-reveal>
-            <p class="label label--accent">04 &nbsp;·&nbsp; Adoption</p>
-            <h4>Technology adoption and governance</h4>
-            <dl class="case-dl">
-              <dt>Problem</dt>
-              <dd>New tools arrive faster than a practice can absorb them, ungoverned adoption
-                  leaves every studio on a different setup, and in-house automation had been
-                  scattered across siloed server folders.</dd>
-              <dt>Control</dt>
-              <dd>An assessment and rollout path for each tool: Guardian for Revit for model health
-                  and standards enforcement, a practice Content Catalog for governed families,
-                  Nezo for embodied carbon calculation, and Earlymark to connect the master
-                  schedule document to the Revit model. In-house scripts and automation were
-                  migrated onto version-controlled GitHub, replacing siloed server locations with a
-                  single governed source.</dd>
-              <dt>Artefact</dt>
-              <dd>An approved toolset with owners, rollout plans and demonstrations, rather than a
-                  list of licences.</dd>
-              <dt>Purpose</dt>
-              <dd>Put sustainability and programme data inside the model, where design decisions
-                  are actually made.</dd>
-            </dl>
+          <article class="case case--collapsible" data-reveal>
+            <h4 class="case-title">
+              <button class="case-head" type="button" id="case-4-trigger"
+                      aria-expanded="false" aria-controls="case-4-panel">
+                <span class="case-head-text">
+                  <span class="label label--accent">04 &nbsp;·&nbsp; Adoption</span>
+                  <span class="case-title-text">Technology adoption and governance</span>
+                </span>
+                <span class="job-toggle" aria-hidden="true"><svg><use href="#ic-chev-down"/></svg></span>
+              </button>
+            </h4>
+            <div class="case-panel" id="case-4-panel" role="region" aria-labelledby="case-4-trigger">
+              <div class="case-panel-inner">
+                <dl class="case-dl">
+                  <dt>Problem</dt>
+                  <dd>New tools arrive faster than a practice can absorb them, ungoverned adoption
+                      leaves every studio on a different setup, and in-house automation had been
+                      scattered across siloed server folders.</dd>
+                  <dt>Control</dt>
+                  <dd>An assessment and rollout path for each tool: Guardian for Revit for model health
+                      and standards enforcement, a practice Content Catalog for governed families,
+                      Nezo for embodied carbon calculation, and Earlymark to connect the master
+                      schedule document to the Revit model. In-house scripts and automation were
+                      migrated onto version-controlled GitHub, replacing siloed server locations with a
+                      single governed source.</dd>
+                  <dt>Artefact</dt>
+                  <dd>An approved toolset with owners, rollout plans and demonstrations, rather than a
+                      list of licences.</dd>
+                  <dt>Purpose</dt>
+                  <dd>Put sustainability and programme data inside the model, where design decisions
+                      are actually made.</dd>
+                </dl>
+              </div>
+            </div>
           </article>
 
-          <article class="case" data-reveal>
-            <p class="label label--accent">05 &nbsp;·&nbsp; Capability</p>
-            <h4>Capability and training</h4>
-            <dl class="case-dl">
-              <dt>Problem</dt>
-              <dd>Tools and standards only hold if people are brought with them.</dd>
-              <dt>Control</dt>
-              <dd>A curated in-house programme of 14 one-hour sessions spanning Revit, Forma, Rhino
-                  and SketchUp, covering new software, workflows, modelling technique and tested
-                  practice, run alongside regular Lunch and Learn demonstrations.</dd>
-              <dt>Artefact</dt>
-              <dd>In-house curriculum paired with a global e-training platform, so staff have both
-                  a guided path and self-directed depth.</dd>
-              <dt>Purpose</dt>
-              <dd>Lift baseline capability rather than concentrate it in a few specialists.</dd>
-            </dl>
+          <article class="case case--collapsible" data-reveal>
+            <h4 class="case-title">
+              <button class="case-head" type="button" id="case-5-trigger"
+                      aria-expanded="false" aria-controls="case-5-panel">
+                <span class="case-head-text">
+                  <span class="label label--accent">05 &nbsp;·&nbsp; Capability</span>
+                  <span class="case-title-text">Capability and training</span>
+                </span>
+                <span class="job-toggle" aria-hidden="true"><svg><use href="#ic-chev-down"/></svg></span>
+              </button>
+            </h4>
+            <div class="case-panel" id="case-5-panel" role="region" aria-labelledby="case-5-trigger">
+              <div class="case-panel-inner">
+                <dl class="case-dl">
+                  <dt>Problem</dt>
+                  <dd>Tools and standards only hold if people are brought with them.</dd>
+                  <dt>Control</dt>
+                  <dd>A curated in-house programme of 14 one-hour sessions spanning Revit, Forma, Rhino
+                      and SketchUp, covering new software, workflows, modelling technique and tested
+                      practice, run alongside regular Lunch and Learn demonstrations.</dd>
+                  <dt>Artefact</dt>
+                  <dd>In-house curriculum paired with a global e-training platform, so staff have both
+                      a guided path and self-directed depth.</dd>
+                  <dt>Purpose</dt>
+                  <dd>Lift baseline capability rather than concentrate it in a few specialists.</dd>
+                </dl>
+              </div>
+            </div>
           </article>
 
         </div>
+      </div>
+
+      <!-- ---- Rothelowman: solar compliance tooling, commissioned build ---- -->
+      <div class="cases">
+        <div class="cases-head">
+          <h3>Solar access and facade analysis</h3>
+          <p>A Rhino.Inside.Revit tool for ADG and SEPP65 solar compliance, commissioned and
+             documented at Rothelowman.</p>
+        </div>
+
+        <article class="case case--feature case--collapsible" data-reveal>
+          <h4 class="case-title">
+            <button class="case-head" type="button" id="case-6-trigger"
+                    aria-expanded="false" aria-controls="case-6-panel">
+              <span class="case-head-text">
+                <span class="label label--accent">Rothelowman &nbsp;&middot;&nbsp; Commissioned build</span>
+                <span class="case-title-text">RIR Solar Access &amp; Facade Study</span>
+              </span>
+              <span class="job-toggle" aria-hidden="true"><svg><use href="#ic-chev-down"/></svg></span>
+            </button>
+          </h4>
+          <div class="case-panel" id="case-6-panel" role="region" aria-labelledby="case-6-trigger">
+            <div class="case-panel-inner">
+              <dl class="case-dl">
+                <dt>Problem</dt>
+                <dd>Solar access studies for ADG and SEPP65 compliance, City of Sydney&rsquo;s metric
+                    among them, were run by hand: room by room, solstice by solstice, in whatever tool
+                    a consultant had to hand, and slow to rerun whenever a design changed.</dd>
+                <dt>Build</dt>
+                <dd>A Grasshopper definition run through Rhino.Inside.Revit directly against the live
+                    model. One workflow tests solar access into living rooms and balconies at a
+                    15-minute timestep across the compliance window, tallies hours against the
+                    ADG&rsquo;s 2-hour test, and can push a pass or fail back into Revit&rsquo;s room
+                    parameters. A second, sibling workflow runs the same grid-based sun analysis at
+                    facade scale to produce a coloured solar gain heat map across the whole envelope,
+                    bakeable into a rendered Rhino view for design review.</dd>
+                <dt>Stack</dt>
+                <dd>Rhino 7, Rhino.Inside.Revit, Grasshopper, Ladybug Tools and Elefront, writing
+                    results back into Revit as shared parameters and generic-model heatmaps, plus a
+                    City of Sydney-format Excel tally for council submission.</dd>
+                <dt>Documentation</dt>
+                <dd>Authored end to end, workflow to script, as a dedicated 24-page section of the
+                    practice&rsquo;s 200-page Revit Manual.</dd>
+              </dl>
+              <div class="case-cta-row">
+                <button class="case-cta" type="button"
+                        data-viewer-src="assets/video/Solar_Rhino-to-Revit-Interop.mp4"
+                        data-viewer-poster="assets/img/thumbs/solar-rir-interop.webp"
+                        data-viewer-title="RIR Solar Access Study"
+                        data-viewer-meta="Room analysis in Rhino.Inside.Revit &middot; 0:27"
+                        data-viewer-kind="video">
+                  <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+                  Watch the room analysis run
+                </button>
+                <button class="case-cta" type="button"
+                        data-viewer-src="assets/video/Solar_Rhino_Render.mp4"
+                        data-viewer-poster="assets/img/thumbs/solar-facade-render.webp"
+                        data-viewer-title="Solar Facade Study"
+                        data-viewer-meta="Facade heat map render &middot; 0:13"
+                        data-viewer-kind="video">
+                  <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+                  Watch the facade heat map
+                </button>
+                <button class="case-cta" type="button"
+                        data-viewer-pages="1"
+                        data-viewer-base="assets/img/docs/solar-script-"
+                        data-viewer-title="RIR Solar Access &amp; Facade Study script"
+                        data-viewer-meta="Grasshopper definition &middot; zoom to inspect"
+                        data-viewer-kind="doc">
+                  <svg aria-hidden="true"><use href="#ic-arrow-ur"/></svg>
+                  See the Grasshopper definition
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
 
       <!-- ---- projects, grouped by practice ----
@@ -1254,6 +1390,6 @@
 <!-- Physics solver for the Toolkit pills. Optional like the rest: if it fails
      to load, main.js leaves the pills in their normal layout. -->
 <script defer src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
-<script defer src="assets/js/main.js?v=20260817g"></script>
+<script defer src="assets/js/main.js?v=20260818b"></script>
 </body>
 </html>

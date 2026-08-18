@@ -1022,6 +1022,29 @@ em, .em {
 
 .case--feature { max-width: 640px; }
 
+/* ---------- Selected work: collapsible case cards ----------
+   Same disclosure mechanism as the Experience accordion below, reusing
+   .job-toggle for the circular chevron, so a card collapses to just its
+   heading and reveals the full case-dl on click. */
+.case-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.1rem 0 0.35rem;
+}
+.case-head:hover .case-title-text { color: var(--accent-deep); }
+.case-head:hover .job-toggle { border-color: var(--accent); color: var(--accent); }
+.case-head-text { display: flex; flex-direction: column; gap: 0.35rem; }
+.case-title { margin-bottom: 0; }
+.case.is-open .job-toggle svg { transform: rotate(180deg); }
+.case.is-open .job-toggle { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.case-panel { overflow: hidden; }
+.case-panel-inner { padding-top: 1.1rem; }
+
 /* ---------- 12. Toolkit (dark band) ---------- */
 .band-dark {
   background: var(--ink-bg);
@@ -1571,6 +1594,16 @@ html.no-gsap .hero-title .line { overflow: visible; }
   border-color: var(--accent);
   color: #fff;
 }
+
+/* Two or more case-cta triggers on one card, e.g. a card with both a video
+   and a document sample: a wrapping row instead of stacked full-width. */
+.case-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+.case-cta-row .case-cta { margin-top: 0; }
 
 .viewer {
   width: min(1180px, 94vw);
