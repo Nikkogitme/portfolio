@@ -980,6 +980,7 @@ em, .em {
 
 .cases-grid {
   display: grid;
+  align-items: start;
   gap: clamp(1rem, 2vw, 1.5rem);
   grid-template-columns: 1fr;
 }
