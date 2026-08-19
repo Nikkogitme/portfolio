@@ -525,6 +525,7 @@ em, .em {
 .about-lead {
   font-family: var(--sans);
   font-weight: 500;
+  font-style: italic;
   font-size: clamp(1.5rem, 3.2vw, 2.6rem);
   line-height: 1.22;
   letter-spacing: -0.022em;
